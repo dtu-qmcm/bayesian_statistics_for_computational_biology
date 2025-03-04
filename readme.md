@@ -1,3 +1,6 @@
+> [!WARNING]
+> This repository is archived! Development has moved to https://github.com/dtu-qmcm/bayesian_statistics_for_computational_biology.
+
 # Bayesian Statistics for Computational Biology
 
 [![CC BY 4.0][cc-by-shield]][cc-by]
