@@ -8,3 +8,5 @@ docs/.quarto
 src/stan/pipette
 src/stan/plushies
 src/stan/plushies-nc
+
+/.quarto/

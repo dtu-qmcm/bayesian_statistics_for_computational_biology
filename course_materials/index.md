@@ -1,10 +1,6 @@
-# Bayesian Statistics for Computational Biology
+# Welcome!
 
-[![CC BY 4.0][cc-by-shield]][cc-by]
-
-This repository has materials for the course "Bayesian Statistics for Computational Biology".
-
-## About the course
+This is a course about Bayesian statistics, targeted at computational biologists
 
 The course currently takes place physically over three weeks in the summer at DTU Biosustain. If you are taking or want to take that course, congratulations you are in the right place! If not, you may still find something interesting here!
 
@@ -51,25 +47,3 @@ The learning material consists of 20 sessions, each intended to take up half a d
               - Control
               - Normalising flows
 - Day 10. pm: examples 
-
-## What is in this repository?
-
-This repository contains:
-
-- Source material for the course's website (folders `course_materials`)
-- The html files that comprise the website (folder `docs`)
-- Code that might be useful during the course (folder `src`)
-- Datasets that come up in the course (folder `data`)
-
-Why is the html folder called `docs`? Well, that just makes it easier to avoid effort using GitHub pages.
-
-## Licence
-
-This work is licensed under a
-[Creative Commons Attribution 4.0 International License][cc-by].
-
-[cc-by]: http://creativecommons.org/licenses/by/4.0/
-[cc-by-image]: https://i.creativecommons.org/l/by/4.0/88x31.png
-[cc-by-shield]: https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg
-
-

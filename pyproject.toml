@@ -7,8 +7,12 @@ authors = [
 ]
 dependencies = [
     "arviz>=0.17.0",
+    "bambi>=0.15.0",
     "cmdstanpy>=1.2.1",
+    "diffrax>=0.7.0",
+    "jax>=0.6.2",
     "jupyter>=1.0.0",
+    "optimistix>=0.0.10",
 ]
 requires-python = ">=3.11"
 readme = "README.md"

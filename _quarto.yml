@@ -1,0 +1,40 @@
+resource_path: ["../"]
+bibliography: bibliography.bib
+citestyle: ieee.csl
+reference-location: margin
+toc: true
+# filters:
+#   - include-code-files
+
+project:
+  type: website
+  output-dir: "docs"
+  render:
+    - course_materials/index.md
+    - course_materials/day-1-am-introduction.md
+    - course_materials/day-1-pm-setup.md
+
+website:
+  title: "Bayesian Statistics for Computational Biology"
+  navbar:
+    tools:
+      - icon: github
+        url:  https://github.com/biosustain/bayesian_statistics_for_computational_biology
+  sidebar:
+    style: "docked"
+    serach: true
+    contents:
+      - section: "Admin"
+        contents:
+        - course_materials/index.md
+      - section: "Course materials"
+        contents:
+        - course_materials/day-1-am-introduction.md
+        - course_materials/day-1-pm-setup.md
+
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    include-in-header: mathjax.html
+  ipynb: default
