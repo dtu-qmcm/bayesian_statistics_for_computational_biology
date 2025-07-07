@@ -4812,7 +4812,11 @@ MathJax.Hub.Config({
   <ul>
   <li><a href="#day-1-pm-set-up-a-suitable-computer-environment" id="toc-day-1-pm-set-up-a-suitable-computer-environment" class="nav-link active" data-scroll-target="#day-1-pm-set-up-a-suitable-computer-environment">Day 1 pm: Set up a suitable computer environment</a>
   <ul class="collapse">
+  <li><a href="#editor" id="toc-editor" class="nav-link" data-scroll-target="#editor">Editor</a></li>
+  <li><a href="#terminal" id="toc-terminal" class="nav-link" data-scroll-target="#terminal">Terminal</a></li>
   <li><a href="#uv" id="toc-uv" class="nav-link" data-scroll-target="#uv">uv</a></li>
+  <li><a href="#git" id="toc-git" class="nav-link" data-scroll-target="#git">git</a></li>
+  <li><a href="#python-packages" id="toc-python-packages" class="nav-link" data-scroll-target="#python-packages">Python packages</a></li>
   </ul></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="day-1-pm-setup.ipynb" download="day-1-pm-setup.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li></ul></div></nav>
@@ -4826,36 +4830,71 @@ MathJax.Hub.Config({
 <section id="day-1-pm-set-up-a-suitable-computer-environment" class="level1">
 <h1>Day 1 pm: Set up a suitable computer environment</h1>
 <p>The aim for this half day is to make sure everyone has a computer environment where they can do the course.</p>
+<section id="editor" class="level2">
+<h2 class="anchored" data-anchor-id="editor">Editor</h2>
+<p>You should have a way to edit arbitrary code files on your computer. Ideally it should have special setup for editing Python files with e.g. syntax highlighting.</p>
+<p>If in doubt, <a href="https://code.visualstudio.com/">VS code</a> is always a good option.</p>
+</section>
+<section id="terminal" class="level2">
+<h2 class="anchored" data-anchor-id="terminal">Terminal</h2>
+<p>You should have a terminal emulator that you can use to run command line programs.</p>
+<p>Your computer probably already has one of these:</p>
+<ul>
+<li>Linux: you probably already have one?</li>
+<li>macOS: The computer comes with a terminal emulator called “terminal”. Plenty of others are available, many people really like <a href="https://iterm2.com/">iterm2</a>. My favourite is <a href="https://wezterm.org/">Wezterm</a>.</li>
+<li>Windows: I think PowerShell is the most popular</li>
+</ul>
+</section>
 <section id="uv" class="level2">
-<h2 class="anchored" data-anchor-id="uv">uv</h2>
-<p>You should be able to run this command in your terminal</p>
-<pre class="shell"><code>❯ uv</code></pre>
+<h2 class="anchored" data-anchor-id="uv"><a href="https://docs.astral.sh/uv/">uv</a></h2>
+<p>uv is a Python dependency manager that can install Python for you.</p>
+<p>Install it by following the instructions on the website. You should then be able to run this command in your terminal</p>
+<pre class="shell"><code>&gt; uv</code></pre>
 <p>The output should look something like this:</p>
 <pre class="shell"><code>An extremely fast Python package manager.
 
 Usage: uv [OPTIONS] &lt;COMMAND&gt;
 
 Commands:
-  run      Run a command or script
-  init     Create a new project
-  add      Add dependencies to the project
-  remove   Remove dependencies from the project
-  sync     Update the project&#39;s environment
-  lock     Update the project&#39;s lockfile
-  export   Export the project&#39;s lockfile to an alternate format
-  tree     Display the project&#39;s dependency tree
-  tool     Run and install commands provided by Python packages
-  python   Manage Python versions and installations
-  pip      Manage Python packages with a pip-compatible interface
-  venv     Create a virtual environment
-  build    Build Python packages into source distributions and wheels
-  publish  Upload distributions to an index
-  cache    Manage uv&#39;s cache
-  self     Manage the uv executable
-  version  Display uv&#39;s version
-  help     Display documentation for a command
+    ...</code></pre>
+<p>If that works, try installing python (do this even if you already have python installed on your computer as it will likely make things easier later):</p>
+<pre class="shell"><code>&gt; uv python install</code></pre>
+<p>To execute a python file with uv:</p>
+<pre class="shell"><code>&gt; uv run my_python_file.py</code></pre>
+<p>To open a Python interpreter:</p>
+<pre class="shell"><code>&gt; uv run python</code></pre>
+<p>To start a new project:</p>
+<pre class="shell"><code>mkdir my_new_project
+cd my_new_project
+uv init</code></pre>
+<p>To install a Python package in the current project:</p>
+<pre class="shell"><code>&gt; uv add package_i_want_to_install</code></pre>
+<p>To install a Python-based application globally:</p>
+<pre class="shell"><code>&gt; uv tool install tool_i_want_to_install</code></pre>
+<p>To run a command with a package installed temporarily (e.g. in this case jupyter):</p>
+<pre class="shell"><code>&gt; uv run --with jupyter jupyter lab</code></pre>
+</section>
+<section id="git" class="level2">
+<h2 class="anchored" data-anchor-id="git">git</h2>
+<p>First make sure you have git installed by running this command in your terminal:</p>
+<pre class="shell"><code>&gt; git</code></pre>
+<p>Expected output:</p>
+<pre class="shell"><code>usage: git [-v | --version] [-h | --help] [-C &lt;path&gt;] [-c &lt;name&gt;=&lt;value&gt;]
+           [--exec-path[=&lt;path&gt;]] [--html-path] [--man-path] [--info-path]
+           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=&lt;path&gt;] [--work-tree=&lt;path&gt;] [--namespace=&lt;name&gt;]
+           [--super-prefix=&lt;path&gt;] [--config-env=&lt;name&gt;=&lt;envvar&gt;]
+           &lt;command&gt; [&lt;args&gt;]
 
-</code></pre>
+These are common Git commands used in various situations:</code></pre>
+<p>If that worked, navigate in your terminal to a place where you would like to put a new folder, then run this command:</p>
+<pre class="shell"><code>&gt; git clone https://github.com/dtu-qmcm/bayesian_statistics_for_computational_biology.git</code></pre>
+<p>There should now be a new folder called <code>bayesian_statistics_for_computational_biology</code>.</p>
+</section>
+<section id="python-packages" class="level2">
+<h2 class="anchored" data-anchor-id="python-packages">Python packages</h2>
+<p>Navigate into the folder <code>bayesian_statistics_for_computational_biology</code> and run this command:</p>
+<pre class="shell"><code>&gt; uv sync</code></pre>
 
 
 </section>

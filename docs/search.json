@@ -4,7 +4,29 @@
     "href": "course_materials/day-1-pm-setup.html",
     "title": "Day 1 pm: Set up a suitable computer environment",
     "section": "",
-    "text": "The aim for this half day is to make sure everyone has a computer environment where they can do the course.\n\n\nYou should be able to run this command in your terminal\n❯ uv\nThe output should look something like this:\nAn extremely fast Python package manager.\n\nUsage: uv [OPTIONS] &lt;COMMAND&gt;\n\nCommands:\n  run      Run a command or script\n  init     Create a new project\n  add      Add dependencies to the project\n  remove   Remove dependencies from the project\n  sync     Update the project's environment\n  lock     Update the project's lockfile\n  export   Export the project's lockfile to an alternate format\n  tree     Display the project's dependency tree\n  tool     Run and install commands provided by Python packages\n  python   Manage Python versions and installations\n  pip      Manage Python packages with a pip-compatible interface\n  venv     Create a virtual environment\n  build    Build Python packages into source distributions and wheels\n  publish  Upload distributions to an index\n  cache    Manage uv's cache\n  self     Manage the uv executable\n  version  Display uv's version\n  help     Display documentation for a command",
+    "text": "The aim for this half day is to make sure everyone has a computer environment where they can do the course.\n\n\nYou should have a way to edit arbitrary code files on your computer. Ideally it should have special setup for editing Python files with e.g. syntax highlighting.\nIf in doubt, VS code is always a good option.\n\n\n\nYou should have a terminal emulator that you can use to run command line programs.\nYour computer probably already has one of these:\n\nLinux: you probably already have one?\nmacOS: The computer comes with a terminal emulator called “terminal”. Plenty of others are available, many people really like iterm2. My favourite is Wezterm.\nWindows: I think PowerShell is the most popular\n\n\n\n\nuv is a Python dependency manager that can install Python for you.\nInstall it by following the instructions on the website. You should then be able to run this command in your terminal\n&gt; uv\nThe output should look something like this:\nAn extremely fast Python package manager.\n\nUsage: uv [OPTIONS] &lt;COMMAND&gt;\n\nCommands:\n    ...\nIf that works, try installing python (do this even if you already have python installed on your computer as it will likely make things easier later):\n&gt; uv python install\nTo execute a python file with uv:\n&gt; uv run my_python_file.py\nTo open a Python interpreter:\n&gt; uv run python\nTo start a new project:\nmkdir my_new_project\ncd my_new_project\nuv init\nTo install a Python package in the current project:\n&gt; uv add package_i_want_to_install\nTo install a Python-based application globally:\n&gt; uv tool install tool_i_want_to_install\nTo run a command with a package installed temporarily (e.g. in this case jupyter):\n&gt; uv run --with jupyter jupyter lab\n\n\n\nFirst make sure you have git installed by running this command in your terminal:\n&gt; git\nExpected output:\nusage: git [-v | --version] [-h | --help] [-C &lt;path&gt;] [-c &lt;name&gt;=&lt;value&gt;]\n           [--exec-path[=&lt;path&gt;]] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=&lt;path&gt;] [--work-tree=&lt;path&gt;] [--namespace=&lt;name&gt;]\n           [--super-prefix=&lt;path&gt;] [--config-env=&lt;name&gt;=&lt;envvar&gt;]\n           &lt;command&gt; [&lt;args&gt;]\n\nThese are common Git commands used in various situations:\nIf that worked, navigate in your terminal to a place where you would like to put a new folder, then run this command:\n&gt; git clone https://github.com/dtu-qmcm/bayesian_statistics_for_computational_biology.git\nThere should now be a new folder called bayesian_statistics_for_computational_biology.\n\n\n\nNavigate into the folder bayesian_statistics_for_computational_biology and run this command:\n&gt; uv sync",
+    "crumbs": [
+      "Course materials",
+      "Day 1 pm: Set up a suitable computer environment"
+    ]
+  },
+  {
+    "objectID": "course_materials/day-1-pm-setup.html#editor",
+    "href": "course_materials/day-1-pm-setup.html#editor",
+    "title": "Day 1 pm: Set up a suitable computer environment",
+    "section": "",
+    "text": "You should have a way to edit arbitrary code files on your computer. Ideally it should have special setup for editing Python files with e.g. syntax highlighting.\nIf in doubt, VS code is always a good option.",
+    "crumbs": [
+      "Course materials",
+      "Day 1 pm: Set up a suitable computer environment"
+    ]
+  },
+  {
+    "objectID": "course_materials/day-1-pm-setup.html#terminal",
+    "href": "course_materials/day-1-pm-setup.html#terminal",
+    "title": "Day 1 pm: Set up a suitable computer environment",
+    "section": "",
+    "text": "You should have a terminal emulator that you can use to run command line programs.\nYour computer probably already has one of these:\n\nLinux: you probably already have one?\nmacOS: The computer comes with a terminal emulator called “terminal”. Plenty of others are available, many people really like iterm2. My favourite is Wezterm.\nWindows: I think PowerShell is the most popular",
     "crumbs": [
       "Course materials",
       "Day 1 pm: Set up a suitable computer environment"
@@ -15,7 +37,29 @@
     "href": "course_materials/day-1-pm-setup.html#uv",
     "title": "Day 1 pm: Set up a suitable computer environment",
     "section": "",
-    "text": "You should be able to run this command in your terminal\n❯ uv\nThe output should look something like this:\nAn extremely fast Python package manager.\n\nUsage: uv [OPTIONS] &lt;COMMAND&gt;\n\nCommands:\n  run      Run a command or script\n  init     Create a new project\n  add      Add dependencies to the project\n  remove   Remove dependencies from the project\n  sync     Update the project's environment\n  lock     Update the project's lockfile\n  export   Export the project's lockfile to an alternate format\n  tree     Display the project's dependency tree\n  tool     Run and install commands provided by Python packages\n  python   Manage Python versions and installations\n  pip      Manage Python packages with a pip-compatible interface\n  venv     Create a virtual environment\n  build    Build Python packages into source distributions and wheels\n  publish  Upload distributions to an index\n  cache    Manage uv's cache\n  self     Manage the uv executable\n  version  Display uv's version\n  help     Display documentation for a command",
+    "text": "uv is a Python dependency manager that can install Python for you.\nInstall it by following the instructions on the website. You should then be able to run this command in your terminal\n&gt; uv\nThe output should look something like this:\nAn extremely fast Python package manager.\n\nUsage: uv [OPTIONS] &lt;COMMAND&gt;\n\nCommands:\n    ...\nIf that works, try installing python (do this even if you already have python installed on your computer as it will likely make things easier later):\n&gt; uv python install\nTo execute a python file with uv:\n&gt; uv run my_python_file.py\nTo open a Python interpreter:\n&gt; uv run python\nTo start a new project:\nmkdir my_new_project\ncd my_new_project\nuv init\nTo install a Python package in the current project:\n&gt; uv add package_i_want_to_install\nTo install a Python-based application globally:\n&gt; uv tool install tool_i_want_to_install\nTo run a command with a package installed temporarily (e.g. in this case jupyter):\n&gt; uv run --with jupyter jupyter lab",
+    "crumbs": [
+      "Course materials",
+      "Day 1 pm: Set up a suitable computer environment"
+    ]
+  },
+  {
+    "objectID": "course_materials/day-1-pm-setup.html#git",
+    "href": "course_materials/day-1-pm-setup.html#git",
+    "title": "Day 1 pm: Set up a suitable computer environment",
+    "section": "",
+    "text": "First make sure you have git installed by running this command in your terminal:\n&gt; git\nExpected output:\nusage: git [-v | --version] [-h | --help] [-C &lt;path&gt;] [-c &lt;name&gt;=&lt;value&gt;]\n           [--exec-path[=&lt;path&gt;]] [--html-path] [--man-path] [--info-path]\n           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]\n           [--git-dir=&lt;path&gt;] [--work-tree=&lt;path&gt;] [--namespace=&lt;name&gt;]\n           [--super-prefix=&lt;path&gt;] [--config-env=&lt;name&gt;=&lt;envvar&gt;]\n           &lt;command&gt; [&lt;args&gt;]\n\nThese are common Git commands used in various situations:\nIf that worked, navigate in your terminal to a place where you would like to put a new folder, then run this command:\n&gt; git clone https://github.com/dtu-qmcm/bayesian_statistics_for_computational_biology.git\nThere should now be a new folder called bayesian_statistics_for_computational_biology.",
+    "crumbs": [
+      "Course materials",
+      "Day 1 pm: Set up a suitable computer environment"
+    ]
+  },
+  {
+    "objectID": "course_materials/day-1-pm-setup.html#python-packages",
+    "href": "course_materials/day-1-pm-setup.html#python-packages",
+    "title": "Day 1 pm: Set up a suitable computer environment",
+    "section": "",
+    "text": "Navigate into the folder bayesian_statistics_for_computational_biology and run this command:\n&gt; uv sync",
     "crumbs": [
       "Course materials",
       "Day 1 pm: Set up a suitable computer environment"
