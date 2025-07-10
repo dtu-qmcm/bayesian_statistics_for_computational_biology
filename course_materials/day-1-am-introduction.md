@@ -125,9 +125,29 @@ Laplace, who did Bayesian inference in the 1780s
 
 Second, the maturity of probability theory means that Bayesian statistical inference is compatible with a wide range of related tools, and in particular Bayesian decision theory. Whereas users of newer statistical frameworks must do some original work to justify what they want to do with their inferences, Bayesian inference practitioners can simply specify a utility function and then plug in to the existing theory.
 
+
+#### Conditional probabilities
+
+The derivation of Bayes' theorem requires us to derive different conditional probabilities so we can rephrase the problem into one that is computationally feasible and epistemologically correct.
+
+::: {#fig-venn_diagram width="40%"}
+
+[Venn_diagram_bayes](img/venn_daigram_bayes.png)]{height=80%}
+A figure to help derive Bayes' theorem
+:::
+
+Probability statements have a precise meaning. Given this venn diagram we can say that the probability of $y$ given $\theta$, or in different terminology $p(y\mid \theta)$, is given by the joint distribution $p(y, \theta)$ divided by the probability of $\theta$ or $\frac{p(y, \theta)}{p(\theta)} = p(y\mid \theta)$.
+
+
+::: {.callout-tip}
+#### Exercise
+How would you derive the probability of $\theta$ given $y$?
+:::
+
 #### Probabilities decompose conveniently, aka Bayes's theorem
 
-Probabilities decompose nicely according to Bayes's theorem:
+
+Probabilities decompose nicely according to Bayes' theorem:
 
 $$
 p(\theta, y) = p(\theta)p(y\mid\theta)
@@ -203,6 +223,45 @@ The statistics wars of the 1980s and 1990s are long since finished and mostly fo
 This is quite a high bar because, as this course will show, it's really not that hard to explain Bayesian inference!
 
 ## Motivating example
+
+As biologist we are often posed questions that require statistical analysis:
+- Does cell line A produce more than cell line B?
+- Are the growth rates of these the same or different?
+- How does composition correlate to some phenotype?
+Despite sounding like a simple analysis achieved using standard
+linear regression techniques the noise associated with biological systems,
+measurements of such systems, and often limited observations result in
+poor statistical inference. This course will present narrative modelling
+as an approach to improve inference. As its name implies narrative modelling
+describes the story or model about how the observations were generated.
+
+Let us examine a simple case: estimating the protein concentration in a cell
+and comparing them between cell lines. For this model there are two points of
+interest: Firstly, there's the biological variation from experiment to experiment;
+and secondly, there is the measurement model that quantifies the protein. We can
+represent the model as follows
+
+$$
+\mu_{reactor} \sim LogNormal(\mu_{true, reactor}, \sigma_{quant}) \\
+\mu_{true, reactor} \sim LogNormal(\mu_{true, strain}, \sigma_{biological}
+$$
+
+We have done this experiment many times before and we have a reasonable idea
+about how accurate our quantification process is, and the variation we can
+expect between our reactors.
+
+
+$$
+\sigma_{quant} \sim log_normal(log(0.01), 0.1) \\
+\sigma_{biological} \sim HalfNormal(0.03)
+$$
+
+By doing so we are explicit about how and what we are choosing to
+do with our model. Comparisons towards frequentist approaches are
+going to be limited throughout this course as this is not our objective,
+however, we will do so for this example.
+
+
 
 
 ## Things to read
