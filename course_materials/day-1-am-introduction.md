@@ -16,6 +16,8 @@ Mathematically, a probability function is a function  $p: \mathcal{S} \rightarro
 - $p(\Omega) = 1$
 - If $A, B \in \mathcal{S}$ are disjoint (i.e. they have no members in common), then $p(A\cup B) = p(A) + p(B)$
 
+A "random variable" is a function from the set $\Omega$ to another set, often the real numbers. Especially when considering continuous sample spaces, it is often convenient to express events in terms of random variables rather than by defining the subset, for example, suppose we have $\Omega=\[-1, 1\]$ and random variable $A:\Omega\rightarrow\mathbb{R}$, where $A(x)=|10x|, x\in\Omega$. Then the expression $p(A>5)$ refers to the probability of the subset $\{x:A(x)>5\}$, i.e. the subset containing numbers between 0.5 and 1, and between $-0.5 and -1$.
+
 Intuitively, probability functions describe more or less anything that can be measured. For example, a jug containing 1 unit of water
 
 ::: {#fig-jug}
@@ -96,11 +98,11 @@ How might we *get* an estimate of the population concentration from a Bayesian i
 
 The second inference has the same form as a null-hypothesis significance test, a statistical inference method you may be familiar with. The inference kind of looks probability-like, so you might wonder if it is Bayesian according to our definition. The answer is no! There *is* a probability statement on the left hand side of the inference, i.e. the statement that, according to a probability function representing the hypothesis that there are carrots in the pot, it would be unlikely to see this few carrots. However, according to our definition Bayesian inference requires a probability statement on the right hand side. 
 
-### Why probability?
+## Why probability?
 
 Since the special thing about Bayesian inference, compared with other ways of doing statistical inference is that it outputs a statement about a probability function, the reasons for choosing Bayesian inference also have to do with the features of probabilities.
 
-#### Probabilities are interpretable
+### Probabilities are interpretable
 
 It is straightforward to interpret statements about probabilities in terms of information and plausible reasoning. For example, after doing a Bayesian inference, one can say things like "According to my model, proposition x..."
 
@@ -112,7 +114,7 @@ In contrast, non-Bayesian statistical inferences can be trickier to interpret.
 
 For a lot more about this and other connections between Bayesian inference, information and plausible reasoning, check out [@jaynesProbabilityTheoryLogic2003].
 
-#### Probability theory is old
+### Probability theory is old
 
 Probability theory is a mature and well-developed branch of mathematics. This makes probability functions a good choice for the output of a statistical inference for several reasons. First, since so much work has already been done, it is rare that Bayesian inference is blocked by the need to develop new mathematical theory. In fact, the theoretical apparatus of Bayesian inference was already available to Pierre-Simon Laplace: the Bayesian inference that he practised before the French revolution is essentially the same as you will learn in this course.
 
@@ -144,45 +146,45 @@ Probability statements have a precise meaning. Given this venn diagram we can sa
 How would you derive the probability of $\theta$ given $y$?
 :::
 
-#### Probabilities decompose conveniently, aka Bayes's theorem
+### Probabilities decompose conveniently, aka Bayes's theorem
 
 
 Probabilities decompose nicely according to Bayes' theorem:
 
 $$
-p(\theta, y) = p(\theta)p(y\mid\theta)
+p(\theta, d) = p(\theta)p(d\mid\theta)
 $$
 
 This expression is nice because the components have natural interpretations:
 
 - $p(\theta)$, aka "prior distribution": nice form for *background* information, e.g. anything non-experimental
-- $p(y\mid\theta)$, aka "sampling distribution", "data distribution", "likelihood function": a nice form for describing the data-generating process
-- $p(\theta, y)$, aka "joint probability distribution" a single function that encapsulates the whole model
+- $p(d\mid\theta)$, aka "sampling distribution", "data distribution", "likelihood function": a nice form for describing the data-generating process
+- $p(\theta, d)$, aka "joint probability distribution" a single function that encapsulates the whole model
 
 ::: {.note}
 Bayes's theorem is typically presented in these equivalent forms:
 
 $$
-p(\theta\mid y) = \frac{p(\theta)p(y\mid\theta)}{p(y)}
+p(\theta\mid d) = \frac{p(\theta)p(y\mid\theta)}{p(d)}
 $$
 
 or 
 
 $$
-p(\theta\mid y) \propto p(\theta)p(y\mid\theta)
+p(\theta\mid d) \propto p(\theta)p(d\mid\theta)
 $$
 :::
 
-### Reasons *not* to use Bayesian inference
+## Reasons *not* to use Bayesian inference
 
 Bayesian inference is not the best choice for every data analysis problem: there are a number of solid practical reasons *not* to use Bayesian inference that you should be aware of.
 
-#### Computational reasons
+### Computational reasons
 
-The biggest reason not to use Bayesian inference is its often-high computational cost. The section on MCMC will touch on the specifics of this, but here is the short version. Suppose we are interested in some unknown quantity $X$, perhaps the concentration of salt molecules in the bowl of soup. We typically want to know something like "Is the amount of salt correct", i.e. is $X$ greater than some number $l$ and less than some other number $h$. The way to answer this question using Bayesian inference is to first taste a spoonful, then, probably using Bayes's theorem, write down a probability density function $p:\mathcal{X}\rightarrow\mathbb{R}^{+}$ that assigns a number to any possible salt concentration. To answer our question, we have to integrate our function $p$ between $l$ and $h$:
+The biggest reason not to use Bayesian inference is its often-high computational cost. The section on MCMC will touch on the specifics of this, but here is the short version. Suppose we are interested in some unknown quantity, perhaps the concentration of salt molecules in the bowl of soup. We typically want to know something like "Is the amount of salt correct", i.e. is $\|\text{salt}\|$ greater than some number $l$ and less than some other number $h$. The way to answer this question using Bayesian inference is to first taste a spoonful, then, probably using Bayes's theorem, write down a probability density function that assigns a number to any possible value of $\|\text{salt}\|$. To answer our question, we have to integrate our function $p$ between $l$ and $h$:
 
 $$
-\text{Probability that the saltiness is correct} = \int_{l}^{h}p(x)dx
+\text{Probability that the saltiness is correct} = \int_{l}^{h}p(spoon\mid\\|\text{salt}\|)d\|\text{salt}\|
 $$
 
 This is the problem: integration is difficult! Many probability functions accurately describe experimental setups, but are impossible to differentiate analytically. In such cases doing Bayesian inference requires expensively solving the integration problem numerically, using methods like Monte Carlo integration. This case is typical, so in practice Bayesian inference requires expensive computation.
@@ -193,7 +195,7 @@ The practical upshot of this problem is that you may not have the computational 
 - More than one hundred million data points must be taken into account
 - More than one hundred unknown discrete parameters need to be estimated (this includes qualitatively different models being jointly compared or mixture distribution components)
 
-#### Do I need statistical inference at all?
+### Do I need statistical inference at all?
 
 ::: {#fig-prospecting}
 
@@ -211,7 +213,7 @@ The line between inference and prospecting is blurry, as inference is rarely don
 
 If your data-analysis problem feels more like prospecting, you *may* want to use Bayesian inference. For example, Bayesian optimisation, which we will explore later, is a well-tested and widely-adopted prospecting method based on Bayesian inference. On the other hand, it may be faster or cheaper to use a non-Bayesian method.
 
-#### Explaining Bayesian inference
+### Explaining Bayesian inference
 
 The statistics wars of the 1980s and 1990s are long since finished and mostly forgotten, but Bayesian inference is still unfamiliar to many people and communities. As a result, it is often easier to use non-Bayesian inference, thereby avoiding the effort of explaining and justifying a new statistics thing.If Bayesian and non-Bayesian inference would both produce the same result in any case, this benefit my outweigh any benefits from using Bayesian inference. If all of these conditions are satisfied, you may be in such a situation:
 
@@ -260,9 +262,6 @@ By doing so we are explicit about how and what we are choosing to
 do with our model. Comparisons towards frequentist approaches are
 going to be limited throughout this course as this is not our objective,
 however, we will do so for this example.
-
-
-
 
 ## Things to read
 

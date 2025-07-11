@@ -3,6 +3,8 @@ bibliography: bibliography.bib
 citestyle: ieee.csl
 reference-location: margin
 toc: true
+execute:
+  freeze: auto
 # filters:
 #   - include-code-files
 
@@ -14,6 +16,7 @@ project:
     - course_materials/day-1-am-introduction.md
     - course_materials/day-1-pm-setup.md
     - course_materials/day-2-am-regression.md
+    - course_materials/day-2-pm-bambi.qmd
 
 website:
   title: "Bayesian Statistics for Computational Biology"
@@ -33,6 +36,7 @@ website:
         - course_materials/day-1-am-introduction.md
         - course_materials/day-1-pm-setup.md
         - course_materials/day-2-am-regression.md
+        - course_materials/day-2-pm-bambi.qmd
 
 format:
   html:
