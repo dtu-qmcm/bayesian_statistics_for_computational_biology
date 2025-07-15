@@ -17,6 +17,7 @@ project:
     - course_materials/day-1-pm-setup.md
     - course_materials/day-2-am-regression.md
     - course_materials/day-2-pm-bambi.qmd
+    - course_materials/day-3-pm-stack.qmd
 
 website:
   title: "Bayesian Statistics for Computational Biology"
@@ -37,6 +38,7 @@ website:
         - course_materials/day-1-pm-setup.md
         - course_materials/day-2-am-regression.md
         - course_materials/day-2-pm-bambi.qmd
+        - course_materials/day-3-pm-stack.qmd
 
 format:
   html:
