@@ -141,7 +141,7 @@ Hierarchical regression models provide a clever solution to this dilemma, by add
 
 $$
 \begin{align*}
-\hat{y} &= \ln(\beta_{r}) \\
+\ln(\hat{y}) &= \beta_{r} \\
 y &\sim Poisson(\hat{y})
 \end{align*}
 $$
