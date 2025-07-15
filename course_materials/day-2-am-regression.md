@@ -114,7 +114,7 @@ To accommodate constrained measurement models without changing the approach too 
 
 $$
 \begin{align*}
-\hat{y} &= \ln(x\beta) \\
+\ln(\hat{y}) &= x\beta \\
 y &\sim Poisson(\hat{y})
 \end{align*}
 $$
