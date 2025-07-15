@@ -18,6 +18,11 @@ if __name__ == "__main__":
     for sigma in [0.4, 1.0]:
         label = f"$\\sigma = {sigma}$"
         line = plot_normal_distribution(ax, x, 0, sigma, label=label)
+
+    y1 = norm.pdf(x, 0, 0.4)
+    y2 = norm.pdf(x, 0, 1.0)
+    c = np.convolve(y1, y2, mode="same")
+    ax.plot(x, c, label="convolution")
     ax.set(
         xlabel="$y_{dep}-\\hat{y}_{dep}$",
         ylabel="$N(y_{dep}\\mid\\hat{y}_{dep},\\sigma)$",
