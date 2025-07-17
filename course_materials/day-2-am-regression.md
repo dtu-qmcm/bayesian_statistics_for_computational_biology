@@ -172,3 +172,7 @@ Libraries like [bambi](https://bambinos.github.io/bambi/) and its R counterpart 
 
 Formula-based modelling is a great fit for a wide Bayesian data analyses, provided that the data comes in tabular format. They don't work so well when the data is hard to squeeze into a single table.
 
+
+## More about regression
+
+[@gelmanRegressionOtherStories] a great source of regression tips and examples.
