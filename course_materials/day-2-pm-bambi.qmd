@@ -1,4 +1,4 @@
-# Day 2 pm: Bambi
+# Formula-based models with bambi
 
 In this session we will learn how to use the Python library [`bambi`]() to fit formula-based Bayesian regression models.
 

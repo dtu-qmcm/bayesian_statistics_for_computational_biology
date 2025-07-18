@@ -1,4 +1,4 @@
-# Day 3: Metropolis Hastings
+# Metropolis Hastings
 
 ## Introduction
 

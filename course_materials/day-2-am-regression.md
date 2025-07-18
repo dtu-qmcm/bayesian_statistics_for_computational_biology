@@ -1,4 +1,4 @@
-# Day 2 am: Regression and formula-based models
+# Regression and formula-based models
 
 ## Regression
 

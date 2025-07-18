@@ -14,11 +14,12 @@ project:
   render:
     - course_materials/index.md
     - course_materials/day-1-am-introduction.md
-    - course_materials/day-1-am-motivating-example.ipynb
     - course_materials/day-1-pm-setup.md
+    - course_materials/day-1-am-motivating-example.ipynb
     - course_materials/day-2-am-regression.md
     - course_materials/day-2-pm-bambi.qmd
     - course_materials/day-3-pm-stack.qmd
+    - course_materials/day-4-am-jax.qmd
 
 website:
   title: "Bayesian Statistics for Computational Biology"
@@ -36,11 +37,12 @@ website:
       - section: "Course materials"
         contents:
         - course_materials/day-1-am-introduction.md
-        - course_materials/day-1-am-motivating-example.ipynb
         - course_materials/day-1-pm-setup.md
+        - course_materials/day-1-am-motivating-example.ipynb
         - course_materials/day-2-am-regression.md
         - course_materials/day-2-pm-bambi.qmd
         - course_materials/day-3-pm-stack.qmd
+        - course_materials/day-4-am-jax.qmd
 
 format:
   html:

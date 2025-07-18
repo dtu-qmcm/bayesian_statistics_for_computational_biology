@@ -1,4 +1,4 @@
-# Day 1 am: Bayesian Inference
+# Bayesian Inference
 
 The aim of today's morning session is to understand Bayesian inference from a theoretical point of view, and to introduce a data analysis problem that motivates the course.
 

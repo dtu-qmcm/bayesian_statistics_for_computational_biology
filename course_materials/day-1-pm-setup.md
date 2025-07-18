@@ -1,4 +1,4 @@
-# Day 1 pm: Set up a suitable computer environment
+# Set up a suitable computer environment
 
 The aim for this half day is to make sure everyone has a computer environment where they can do the course.
 

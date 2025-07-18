@@ -1,4 +1,4 @@
-# Day 3 pm: Bayesian statistical software for computational biology
+# Bayesian statistical software
 
 To do a Bayesian statistical analysis you probably need to do the following things:
 
@@ -16,20 +16,18 @@ Software can help with all these activities, but it can be tricky to choose what
 
 ### ETL
 
-[ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) stands for "Extract, transform, load".
-
-As well as being a good keyword for your CV, ETL roughly covers the things you need to do before thinking about modelling.
+[ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) stands for "Extract, transform, load". As well as being a good keyword for your CV, this roughly covers the things you need to do before thinking about modelling.
 
 For this you probably need to write some code in R, Python, some other high-level programming language, SQL or shell scripts. Out of these we will focus on Python in this course.
 
 In particular it is good to know how to use these Python packages:
 
-- polars
-- pandas
-- numpy
-- xarray
-- pydantic
-- patito (pydantic-style validation for polars dataframes)
+- [pandas](https://pandas.pydata.org/) the most used dataframe library
+- [polars](https://docs.pola.rs/user-guide/getting-started/) an alternative dataframe library with increasing popularity and in my opinion a nicer api than pandas
+- [numpy](https://numpy.org/) numerical operations in Python. See also [I don't like Numpy](https://dynomight.net/numpy/)
+- [xarray](https://docs.xarray.dev/en/stable/) labelled multi-dimensional arrays
+- [pydantic](https://docs.pydantic.dev/latest/) dataclasses that are easy to validate and serialise
+- [patito](https://github.com/JakobGM/patito) pydantic-style validation for polars dataframes
 
 
 ### Model definition
@@ -83,34 +81,36 @@ Normalising flows [try flowMC](https://flowmc.readthedocs.io/en/main/)
 
 ### Analysing and diagnosing fits
 
-[Arviz](https://python.arviz.org/en/stable/)!
+[Arviz](https://python.arviz.org/en/stable/) is a nice library for storing and analysing MCMC output. We use it a lot in this course.
 
 
 ### Plotting
 
-Arviz and matplotlib.
+Arviz provides some plotting functions that are nice for diagnostics.
+
+For plots to include in a publication I recommend starting from scratch with[ matplotlib](https://matplotlib.org/): it can be painful but (unlike some alternatives) with enough work you can make basically any plot you can think of.
 
 ### Writing
 
-Quarto
+This website is written using [Quarto](https://quarto.org/). It lets you easily turn markdown documents into a wide range of other formats and even execute code that lives inside them.
 
-Jupyter
+Jupyter is the de facto standard for writing interactive Python notebooks. If it's where you spend most of your Python time I recommend to experiment with writing scripts and packages instead, as well as getting to know the Python debugger pdb. These things are not that scary and can let you do things that are really tricky with notebooks. The strength of notebooks is being able to run code, write documentation and look at graphs in the same place. 
 
-Marimo
+[Marimo](https://marimo.io/) is an alternative notebook package that describes itself as "next-generation".
 
-Pandoc
+[Pandoc](https://pandoc.org/) is a great tool for converting documents from one form to another. If you want to write an academic paper in markdown it might be a better choice than quarto due to its compatibility with latex templates.
 
 ### Orchestrating
 
-Make
+[Make](https://www.gnu.org/software/make/) is the classic task runner. As its name suggests, it focuses on automating the task of making files. It is old and boring, which is a good reason to get to know it!
 
-Just
+[Just](https://just.systems/man/en/) is a task runner that "just" aims to run tasks (as opposed to make which is really a build system). 
 
-shell script
+shell scripts are another valid alternative for automating your tasks.
 
-Nextflow
+[Nextflow](https://www.nextflow.io/) is a pipeline automator oriented towards scientific workflows.
 
-snakemake
+[snakemake](https://snakemake.readthedocs.io/en/stable/) is another scientific workflow automator.
 
 ## References
 
