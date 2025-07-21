@@ -16,6 +16,7 @@ Here is as very short example that illustrates how JAX works:
 import jax
 from jax import numpy as jnp
 
+@jax.jit
 def my_func(x: jax.Array) -> float:
     return jnp.sqrt(jnp.sum(x ** 2))
 

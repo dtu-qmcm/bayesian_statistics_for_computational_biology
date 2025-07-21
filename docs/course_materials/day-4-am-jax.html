@@ -4865,6 +4865,18 @@ MathJax.Hub.Config({
  <span class="menu-text">JAX</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../course_materials/day-5-am-diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">After MCMC: diagnostics, model evaluation and other decisions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../course_materials/day-5-pm-diagnostics-example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diagnostics example</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -4915,17 +4927,18 @@ MathJax.Hub.Config({
 <p>Its distinctive feature is being primarily functional rather than object-oriented, as well as a good scientific programming community (check out <a href="https://github.com/n2cholas/awesome-jax">this list</a>).</p>
 <p>JAX provides its own implementations of the numpy and scipy APIs, as well as functions for performing important operations like vectorisation, automatic differentiation, parallelisation and compilation to a low-level language.</p>
 <p>Here is as very short example that illustrates how JAX works:</p>
-<div id="31bb60ff" class="cell" data-execution_count="1">
+<div id="fe1c6232" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_func(x: jax.Array) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.sqrt(jnp.<span class="bu">sum</span>(x <span class="op">**</span> <span class="dv">2</span>))</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>grad_of_my_func <span class="op">=</span> jax.grad(my_func)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> jnp.array([<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>])</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>grad_of_a <span class="op">=</span> grad_of_my_func(a)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(grad_of_a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">@jax.jit</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_func(x: jax.Array) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.sqrt(jnp.<span class="bu">sum</span>(x <span class="op">**</span> <span class="dv">2</span>))</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>grad_of_my_func <span class="op">=</span> jax.grad(my_func)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> jnp.array([<span class="fl">0.0</span>, <span class="fl">1.0</span>, <span class="fl">2.0</span>])</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>grad_of_a <span class="op">=</span> grad_of_my_func(a)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(grad_of_a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0.        0.4472136 0.8944272]</code></pre>
 </div>

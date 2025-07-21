@@ -24,11 +24,12 @@ In particular it is good to know how to use these Python packages:
 
 - [pandas](https://pandas.pydata.org/) the most used dataframe library
 - [polars](https://docs.pola.rs/user-guide/getting-started/) an alternative dataframe library with increasing popularity and in my opinion a nicer api than pandas
-- [numpy](https://numpy.org/) numerical operations in Python. See also [I don't like Numpy](https://dynomight.net/numpy/)
+- [numpy](https://numpy.org/) numerical array operations in Python. See also [I don't like Numpy](https://dynomight.net/numpy/)
 - [xarray](https://docs.xarray.dev/en/stable/) labelled multi-dimensional arrays
 - [pydantic](https://docs.pydantic.dev/latest/) dataclasses that are easy to validate and serialise
 - [patito](https://github.com/JakobGM/patito) pydantic-style validation for polars dataframes
 
+Also check out [dbt](https://docs.getdbt.com/docs/get-started-dbt).
 
 ### Model definition
 
@@ -41,9 +42,12 @@ We have already met one such framework, namely bambi, a good example of a formul
 A level more flexible are specialised Bayesian statistics-oriented probabilistic programming languages like PyMC, Stan and numpyro. These allow a lot more flexibility while still providing statistics-specific help like pre-computed distributions and transformations as well as helpful guardrails.
 
 Of these, Stan is my favourite for several reasons:
+
 - it is very flexible, allowing definition of almost any statistical model.
 - it has a large, active user and developer community
 - It is less abstract than the alternatives. For example, specifying a model involves explicitly calculating the joint density, i.e. saying how to perform a computation that outputs a number. This makes it much easier to think about performance compared with frameworks like PyMC where one defines models by declaring abstract random variable objects (though there are advantages to the abstraction in simpler cases).
+
+Here is a very nice course in Bayesian statistics using numpyro: <https://elizavetasemenova.github.io/prob-epi/01_intro.html>.
 
 An even more flexible option, which we will explore in this course, is to use a modular approach based on JAX, a Python library that augments numpy and scipy with automatic differentiation, the key ingredient for Bayesian computation. Though it is increasingly popular for Bayesian statistics, JAX is a general scientific machine learning framework that doesn't target this application specifically. A Bayesian linear regression model defined in JAX might look like this:
 
@@ -52,12 +56,12 @@ import jax
 from jax import numpy as jnp
 from jax.scipy.stats import norm
 
-def my_log_density(d: jax.Array, theta: dict[str, jax.Array]) -> float:
+def my_log_density(d: tuple[jax.Array], theta: dict[str, jax.Array]) -> float:
     y, x = d
     lprior = (
-        norm.lpdf(theta["alpha"], loc=0.0, scale=1.0)
-        + norm.lpdf(theta["beta"], loc=0.0, scale=1.0)
-        + norm.lpdf(theta["log_sigma"], loc=0.0, scale=1.0)
+        norm.lpdf(theta["alpha"], loc=0.0, scale=1.0).sum()
+        + norm.lpdf(theta["beta"], loc=0.0, scale=1.0).sum()
+        + norm.lpdf(theta["log_sigma"], loc=0.0, scale=1.0).sum()
     )
     yhat = theta["alpha"] + x @ theta["beta"]
     sigma = jnp.exp(theta["log_sigma"])

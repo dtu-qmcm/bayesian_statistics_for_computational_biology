@@ -21,6 +21,8 @@ project:
     - course_materials/day-3-qm-mcmc.qmd
     - course_materials/day-3-pm-stack.qmd
     - course_materials/day-4-am-jax.qmd
+    - course_materials/day-5-am-diagnostics.qmd
+    - course_materials/day-5-pm-diagnostics-example.qmd
 
 website:
   title: "Bayesian Statistics for Computational Biology"
@@ -45,6 +47,8 @@ website:
         - course_materials/day-3-qm-mcmc.qmd
         - course_materials/day-3-pm-stack.qmd
         - course_materials/day-4-am-jax.qmd
+        - course_materials/day-5-am-diagnostics.qmd
+        - course_materials/day-5-pm-diagnostics-example.qmd
 
 format:
   html:

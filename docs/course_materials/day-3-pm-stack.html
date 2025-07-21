@@ -4885,6 +4885,18 @@ MathJax.Hub.Config({
  <span class="menu-text">JAX</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../course_materials/day-5-am-diagnostics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">After MCMC: diagnostics, model evaluation and other decisions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../course_materials/day-5-pm-diagnostics-example.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Diagnostics example</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -4943,11 +4955,12 @@ MathJax.Hub.Config({
 <ul>
 <li><a href="https://pandas.pydata.org/">pandas</a> the most used dataframe library</li>
 <li><a href="https://docs.pola.rs/user-guide/getting-started/">polars</a> an alternative dataframe library with increasing popularity and in my opinion a nicer api than pandas</li>
-<li><a href="https://numpy.org/">numpy</a> numerical operations in Python. See also <a href="https://dynomight.net/numpy/">I don’t like Numpy</a></li>
+<li><a href="https://numpy.org/">numpy</a> numerical array operations in Python. See also <a href="https://dynomight.net/numpy/">I don’t like Numpy</a></li>
 <li><a href="https://docs.xarray.dev/en/stable/">xarray</a> labelled multi-dimensional arrays</li>
 <li><a href="https://docs.pydantic.dev/latest/">pydantic</a> dataclasses that are easy to validate and serialise</li>
 <li><a href="https://github.com/JakobGM/patito">patito</a> pydantic-style validation for polars dataframes</li>
 </ul>
+<p>Also check out <a href="https://docs.getdbt.com/docs/get-started-dbt">dbt</a>.</p>
 </section>
 <section id="model-definition" class="level3">
 <h3 class="anchored" data-anchor-id="model-definition">Model definition</h3>
@@ -4955,18 +4968,24 @@ MathJax.Hub.Config({
 <p>As we have already seen, to define a Bayesian statistical model it suffices to specify a probability density for any possible combination of data and parameters. For this you need a probabilistic programming language or PPL.</p>
 <p>We have already met one such framework, namely bambi, a good example of a formula-based probabilistic programming language. This kind of PPL can achieve a lot of succinctness, making it possible to define statistical models unambiguously with very little code, which is very useful when you want to easily spot differences between models. On the other hand, formula-based PPLs are inflexible: there are a lot of useful models that they can’t define, or for which doing so is very awkward, such as models whose data is not naturally tabular.</p>
 <p>A level more flexible are specialised Bayesian statistics-oriented probabilistic programming languages like PyMC, Stan and numpyro. These allow a lot more flexibility while still providing statistics-specific help like pre-computed distributions and transformations as well as helpful guardrails.</p>
-<p>Of these, Stan is my favourite for several reasons: - it is very flexible, allowing definition of almost any statistical model. - it has a large, active user and developer community - It is less abstract than the alternatives. For example, specifying a model involves explicitly calculating the joint density, i.e. saying how to perform a computation that outputs a number. This makes it much easier to think about performance compared with frameworks like PyMC where one defines models by declaring abstract random variable objects (though there are advantages to the abstraction in simpler cases).</p>
+<p>Of these, Stan is my favourite for several reasons:</p>
+<ul>
+<li>it is very flexible, allowing definition of almost any statistical model.</li>
+<li>it has a large, active user and developer community</li>
+<li>It is less abstract than the alternatives. For example, specifying a model involves explicitly calculating the joint density, i.e. saying how to perform a computation that outputs a number. This makes it much easier to think about performance compared with frameworks like PyMC where one defines models by declaring abstract random variable objects (though there are advantages to the abstraction in simpler cases).</li>
+</ul>
+<p>Here is a very nice course in Bayesian statistics using numpyro: <a href="https://elizavetasemenova.github.io/prob-epi/01_intro.html" class="uri">https://elizavetasemenova.github.io/prob-epi/01_intro.html</a>.</p>
 <p>An even more flexible option, which we will explore in this course, is to use a modular approach based on JAX, a Python library that augments numpy and scipy with automatic differentiation, the key ingredient for Bayesian computation. Though it is increasingly popular for Bayesian statistics, JAX is a general scientific machine learning framework that doesn’t target this application specifically. A Bayesian linear regression model defined in JAX might look like this:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax </span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> numpy <span class="im">as</span> jnp</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax.scipy.stats <span class="im">import</span> norm</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_log_density(d: jax.Array, theta: <span class="bu">dict</span>[<span class="bu">str</span>, jax.Array]) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_log_density(d: <span class="bu">tuple</span>[jax.Array], theta: <span class="bu">dict</span>[<span class="bu">str</span>, jax.Array]) <span class="op">-&gt;</span> <span class="bu">float</span>:</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    y, x <span class="op">=</span> d</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    lprior <span class="op">=</span> (</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        norm.lpdf(theta[<span class="st">&quot;alpha&quot;</span>], loc<span class="op">=</span><span class="fl">0.0</span>, scale<span class="op">=</span><span class="fl">1.0</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> norm.lpdf(theta[<span class="st">&quot;beta&quot;</span>], loc<span class="op">=</span><span class="fl">0.0</span>, scale<span class="op">=</span><span class="fl">1.0</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> norm.lpdf(theta[<span class="st">&quot;log_sigma&quot;</span>], loc<span class="op">=</span><span class="fl">0.0</span>, scale<span class="op">=</span><span class="fl">1.0</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        norm.lpdf(theta[<span class="st">&quot;alpha&quot;</span>], loc<span class="op">=</span><span class="fl">0.0</span>, scale<span class="op">=</span><span class="fl">1.0</span>).<span class="bu">sum</span>()</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> norm.lpdf(theta[<span class="st">&quot;beta&quot;</span>], loc<span class="op">=</span><span class="fl">0.0</span>, scale<span class="op">=</span><span class="fl">1.0</span>).<span class="bu">sum</span>()</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">+</span> norm.lpdf(theta[<span class="st">&quot;log_sigma&quot;</span>], loc<span class="op">=</span><span class="fl">0.0</span>, scale<span class="op">=</span><span class="fl">1.0</span>).<span class="bu">sum</span>()</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    yhat <span class="op">=</span> theta[<span class="st">&quot;alpha&quot;</span>] <span class="op">+</span> x <span class="op">@</span> theta[<span class="st">&quot;beta&quot;</span>]</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> jnp.exp(theta[<span class="st">&quot;log_sigma&quot;</span>])</span>
