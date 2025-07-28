@@ -56,7 +56,7 @@ The learning material consists of 20 sessions, each intended to take up half a d
 
 This repository contains:
 
-- Source material for the course's website (folders `course_materials`)
+- Source material for the course's website (folders `course`)
 - The html files that comprise the website (folder `docs`)
 - Code that might be useful during the course (folder `src`)
 - Datasets that come up in the course (folder `data`)
