@@ -134,7 +134,7 @@ The derivation of Bayes' theorem requires us to derive different conditional pro
 
 ::: {#fig-venn_diagram width="40%"}
 
-[Venn_diagram_bayes](img/venn_daigram_bayes.png)]{height=80%}
+[Venn_diagram_bayes](img/venn_diagram_bayes.png)]{height=80%}
 A figure to help derive Bayes' theorem
 :::
 
