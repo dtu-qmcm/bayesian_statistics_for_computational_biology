@@ -53,7 +53,7 @@ website:
         - course/practical-3-stack.qmd
         - course/practical-4-jax.qmd
         - course/practical-5-diagnostics.qmd
-        - course/theory-6-odes.qmd
+        - course/practical-6-odes.qmd
 
 format:
   html:

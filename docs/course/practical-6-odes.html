@@ -4782,7 +4782,7 @@ MathJax.Hub.Config({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">ODEs with JAX</li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../course/practical-1-setup.html">Practical</a></li><li class="breadcrumb-item"><a href="../course/practical-6-odes.html">ODEs with JAX</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -4892,8 +4892,11 @@ MathJax.Hub.Config({
   </div>
 </li>
           <li class="sidebar-item">
- <span class="menu-text">course/theory-6-odes.qmd</span>
-  </li>
+  <div class="sidebar-item-container"> 
+  <a href="../course/practical-6-odes.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">ODEs with JAX</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -4910,14 +4913,21 @@ MathJax.Hub.Config({
   <ul class="collapse">
   <li><a href="#specify-true-parameters" id="toc-specify-true-parameters" class="nav-link" data-scroll-target="#specify-true-parameters">Specify true parameters</a></li>
   <li><a href="#defining-the-dynamics" id="toc-defining-the-dynamics" class="nav-link" data-scroll-target="#defining-the-dynamics">Defining the dynamics</a></li>
+  <li><a href="#solving-the-initial-value-problem" id="toc-solving-the-initial-value-problem" class="nav-link" data-scroll-target="#solving-the-initial-value-problem">Solving the initial value problem</a></li>
   </ul></li>
+  <li><a href="#defining-a-model" id="toc-defining-a-model" class="nav-link" data-scroll-target="#defining-a-model">Defining a model</a>
+  <ul class="collapse">
+  <li><a href="#joint-log-density-function" id="toc-joint-log-density-function" class="nav-link" data-scroll-target="#joint-log-density-function">Joint log density function</a></li>
+  <li><a href="#posterior" id="toc-posterior" class="nav-link" data-scroll-target="#posterior">Posterior</a></li>
+  </ul></li>
+  <li><a href="#mcmc" id="toc-mcmc" class="nav-link" data-scroll-target="#mcmc">MCMC</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="practical-6-odes.ipynb" download="practical-6-odes.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../course/practical-1-setup.html">Practical</a></li><li class="breadcrumb-item"><a href="../course/practical-6-odes.html">ODEs with JAX</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">ODEs with JAX</h1>
 </div>
@@ -4941,20 +4951,23 @@ MathJax.Hub.Config({
 <p>We’ll use diffrax to solve the initial value problem introduced in the last session, then embed this solution inside a statistical model.</p>
 <section id="imports" class="level2">
 <h2 class="anchored" data-anchor-id="imports">imports</h2>
-<div id="ca283ed6" class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> diffrax</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> numpy <span class="im">as</span> jnp</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="cd9d7d5a" class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> functools <span class="im">import</span> partial</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> operator</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> diffrax</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> jax</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> numpy <span class="im">as</span> jnp</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> jax <span class="im">import</span> scipy <span class="im">as</span> jsp</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> matplotlib <span class="im">import</span> pyplot <span class="im">as</span> plt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="specify-true-parameters" class="level3">
 <h3 class="anchored" data-anchor-id="specify-true-parameters">Specify true parameters</h3>
-<p>In order to avoid doing too much annoying handling of strings we assume that all the parts of the problem have meaningful 1-indexed integer labels: for example, species 1 is biomass.</p>
 <p>This code specifies the dimensions of our problem.</p>
-<div id="971fca7b" class="cell" data-execution_count="2">
+<div id="95ca8871" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>N_strain <span class="op">=</span> <span class="dv">4</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>N_tube <span class="op">=</span> <span class="dv">16</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>N_timepoint <span class="op">=</span> <span class="dv">50</span></span>
@@ -4962,18 +4975,18 @@ MathJax.Hub.Config({
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>strains <span class="op">=</span> [i <span class="op">+</span> <span class="dv">1</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N_strain)]</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>tubes <span class="op">=</span> [i <span class="op">+</span> <span class="dv">1</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(N_tube)]</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>species <span class="op">=</span> [<span class="st">&quot;biomass&quot;</span>, <span class="st">&quot;substrate&quot;</span>]</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>measurement_timepoints <span class="op">=</span> np.array([<span class="fl">4.0</span>, <span class="fl">7.0</span>, <span class="fl">12.0</span>, <span class="fl">15.0</span>, <span class="fl">17.0</span>])</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>measurement_times <span class="op">=</span> np.array([<span class="fl">4.0</span>, <span class="fl">7.0</span>, <span class="fl">12.0</span>, <span class="fl">15.0</span>, <span class="fl">17.0</span>])</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>timepoints <span class="op">=</span> jnp.linspace(<span class="fl">0.01</span>, duration, N_timepoint)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>To generate random numbers with JAX we need to explicitly create some random key objects.</p>
-<div id="fe884aed" class="cell" data-execution_count="3">
+<div id="8b8322b8" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>SEED <span class="op">=</span> <span class="dv">12345</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>key <span class="op">=</span> jax.random.key(seed<span class="op">=</span>SEED)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>rng_key, key <span class="op">=</span> jax.random.split(key)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>rng_key_a, rng_key_b, rng_key_c, rng_key_d <span class="op">=</span> jax.random.split(rng_key, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This code defines some true values for the parameters - we will use these to generate fake data. Note that we avoid putting any constrained variables in the parameters using some log transformations.</p>
-<div id="0a2e4287" class="cell" data-execution_count="4">
+<div id="20e6b48c" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>a_mu_max <span class="op">=</span> <span class="op">-</span><span class="fl">1.7</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>log_t_mu_max <span class="op">=</span> jnp.log(<span class="fl">0.2</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>a_ks <span class="op">=</span> <span class="op">-</span><span class="fl">1.3</span></span>
@@ -5010,62 +5023,85 @@ MathJax.Hub.Config({
 <span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    ),</span>
 <span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_strain_params(strain_ix, params):</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="bu">slice</span>(leaf):</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (</span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>            leaf[strain_ix]</span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="bu">hasattr</span>(leaf, <span class="st">&quot;shape&quot;</span>) <span class="kw">and</span> leaf.ndim <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> leaf.shape[<span class="dv">0</span>] <span class="op">==</span> N_strain)</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span> leaf</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jax.tree.<span class="bu">map</span>(<span class="bu">slice</span>, params)</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>true_params_strain_2 <span class="op">=</span> get_strain_params(<span class="dv">2</span>, true_params)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_strain_params(strain_ix, params):</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="bu">slice</span>(leaf):</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> (</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>            leaf[strain_ix]</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> (<span class="bu">hasattr</span>(leaf, <span class="st">&quot;shape&quot;</span>) <span class="kw">and</span> leaf.ndim <span class="op">&gt;</span> <span class="dv">0</span> <span class="kw">and</span> leaf.shape[<span class="dv">0</span>] <span class="op">==</span> N_strain)</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span> leaf</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jax.tree.<span class="bu">map</span>(<span class="bu">slice</span>, params)</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>true_params_strain_2 <span class="op">=</span> get_strain_params(<span class="dv">2</span>, true_params)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>true_params_strain_2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="49">
+<pre><code>{&#39;a_gamma&#39;: -0.6,
+ &#39;a_ks&#39;: -1.3,
+ &#39;a_mu_max&#39;: -1.7,
+ &#39;log_conc_init&#39;: Array([-2.043062,  0.148519], dtype=float32),
+ &#39;log_gamma&#39;: Array(-0.5753846, dtype=float32),
+ &#39;log_ks&#39;: Array(-1.4795702, dtype=float32),
+ &#39;log_mu_max&#39;: Array(-1.9427458, dtype=float32),
+ &#39;log_sigma&#39;: Array([-2.5257287, -2.3025851], dtype=float32),
+ &#39;log_tau_gamma&#39;: Array(-2.040221, dtype=float32, weak_type=True),
+ &#39;log_tau_ks&#39;: Array(-1.2039728, dtype=float32, weak_type=True),
+ &#39;log_tau_mu_max&#39;: Array(-1.609438, dtype=float32, weak_type=True)}</code></pre>
+</div>
 </div>
 </section>
 <section id="defining-the-dynamics" class="level3">
 <h3 class="anchored" data-anchor-id="defining-the-dynamics">Defining the dynamics</h3>
 <p>To implement our model using diffrax, we need to write down the dynamics as a Python function with a special signature <code>t, y, args</code>, where <code>t</code> is a float representing the time, <code>y</code> is a jax array of state variables and <code>args</code> is an arbitrary auxiliary <a href="https://docs.jax.dev/en/latest/pytrees.html">PyTree</a>, in this case a dictionary of parameters pertaining to a strain.</p>
-<div id="1f9393b9" class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> monod_kinetics(t, y, args):</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    x, s <span class="op">=</span> y</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    mu_max <span class="op">=</span> jnp.exp(args[<span class="st">&quot;log_mu_max&quot;</span>])</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    ks <span class="op">=</span> jnp.exp(args[<span class="st">&quot;log_ks&quot;</span>])</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    gamma <span class="op">=</span> jnp.exp(args[<span class="st">&quot;log_gamma&quot;</span>])</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> (mu_max <span class="op">*</span> s) <span class="op">/</span> (ks <span class="op">+</span> s)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.array([mu <span class="op">*</span> x, <span class="op">-</span>gamma <span class="op">*</span> mu <span class="op">*</span> x])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="fd6ad88e" class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> monod_kinetics(t, y, args):</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    x, s <span class="op">=</span> y</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    mu_max <span class="op">=</span> jnp.exp(args[<span class="st">&quot;log_mu_max&quot;</span>])</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    ks <span class="op">=</span> jnp.exp(args[<span class="st">&quot;log_ks&quot;</span>])</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    gamma <span class="op">=</span> jnp.exp(args[<span class="st">&quot;log_gamma&quot;</span>])</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> (mu_max <span class="op">*</span> s) <span class="op">/</span> (ks <span class="op">+</span> s)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.array([mu <span class="op">*</span> x, <span class="op">-</span>gamma <span class="op">*</span> mu <span class="op">*</span> x])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="solving-the-initial-value-problem" class="level3">
+<h3 class="anchored" data-anchor-id="solving-the-initial-value-problem">Solving the initial value problem</h3>
 <p>The next step is to wrap this function using the diffrax class <code>ODETerm</code></p>
-<div id="3ca5e936" class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>monod_term <span class="op">=</span> diffrax.ODETerm(monod_kinetics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="c95e72bc" class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>monod_term <span class="op">=</span> diffrax.ODETerm(monod_kinetics)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Now we can choose a solver, stepsize controller, initial sensitivity and time points, then simulate</p>
-<div id="8e501cea" class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>monod_term <span class="op">=</span> diffrax.ODETerm(monod_kinetics)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>solver <span class="op">=</span> diffrax.Kvaerno5()</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>stepsize_controller <span class="op">=</span> diffrax.PIDController(rtol<span class="op">=</span><span class="fl">1e-8</span>, atol<span class="op">=</span><span class="fl">1e-8</span>)</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>t0 <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>tf <span class="op">=</span> timepoints[<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>dt0 <span class="op">=</span> <span class="fl">0.001</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>y0 <span class="op">=</span> jnp.exp(true_params_strain_2[<span class="st">&quot;log_conc_init&quot;</span>])</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>saveat <span class="op">=</span> diffrax.SaveAt(ts<span class="op">=</span>timepoints)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>solution <span class="op">=</span> diffrax.diffeqsolve(</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    monod_term,</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    solver,</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    t0<span class="op">=</span>t0,</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    t1<span class="op">=</span>tf,</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    dt0<span class="op">=</span>dt0,</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    y0<span class="op">=</span>y0,</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    saveat<span class="op">=</span>saveat,</span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>true_params_strain_2,</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    stepsize_controller<span class="op">=</span>stepsize_controller,</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we can choose a solver, stepsize controller and initial sensitivity</p>
+<div id="f45d5826" class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>solver <span class="op">=</span> diffrax.Kvaerno5()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>stepsize_controller <span class="op">=</span> diffrax.PIDController(rtol<span class="op">=</span><span class="fl">1e-8</span>, atol<span class="op">=</span><span class="fl">1e-8</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>dt0 <span class="op">=</span> <span class="fl">0.001</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="89439615" class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>f, ax <span class="op">=</span> plt.subplots()</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> yi, label <span class="kw">in</span> <span class="bu">zip</span>(solution.ys.T, [<span class="st">&quot;substrate&quot;</span>, <span class="st">&quot;product&quot;</span>]):</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  ax.plot(timepoints, yi, label<span class="op">=</span>label)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>ax.legend()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now we can make a function for solving our initial value problem</p>
+<div id="51d2cb96" class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> solve_monod(args, timepoints):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    t0 <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    tf <span class="op">=</span> timepoints[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    y0 <span class="op">=</span> jnp.exp(args[<span class="st">&quot;log_conc_init&quot;</span>])</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    saveat <span class="op">=</span> diffrax.SaveAt(ts<span class="op">=</span>timepoints)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> diffrax.diffeqsolve(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        monod_term,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        solver,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        t0<span class="op">=</span>t0,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        t1<span class="op">=</span>tf,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        dt0<span class="op">=</span>dt0,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>        y0<span class="op">=</span>y0,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        saveat<span class="op">=</span>saveat,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>args,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        stepsize_controller<span class="op">=</span>stepsize_controller,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>solution <span class="op">=</span> solve_monod(args<span class="op">=</span>true_params_strain_2, timepoints<span class="op">=</span>timepoints)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="6c49ec05" class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>f, ax <span class="op">=</span> plt.subplots()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> yi, label <span class="kw">in</span> <span class="bu">zip</span>(solution.ys.T, [<span class="st">&quot;substrate&quot;</span>, <span class="st">&quot;product&quot;</span>]):</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    ax.plot(timepoints, yi, label<span class="op">=</span>label)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>ax.legend()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div>
 <figure class="figure">
@@ -5074,10 +5110,289 @@ MathJax.Hub.Config({
 </div>
 </div>
 </div>
-<p>nice!</p>
-
-
+<p>Nice!</p>
 </section>
+</section>
+<section id="defining-a-model" class="level2">
+<h2 class="anchored" data-anchor-id="defining-a-model">Defining a model</h2>
+<section id="joint-log-density-function" class="level3">
+<h3 class="anchored" data-anchor-id="joint-log-density-function">Joint log density function</h3>
+<p>The next step is to write a joint log density function that connects parameters and data with measurables using <code>solve_monod</code>. We’ll do this bit by bit, starting with the prior log density:</p>
+<div id="85e6f015" class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> prior_log_density(params, prior):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    loc, scale <span class="op">=</span> prior</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jax.tree.<span class="bu">map</span>(jsp.stats.norm.logpdf, params, loc, scale)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>example_prior_loc <span class="op">=</span> jax.tree.<span class="bu">map</span>(jnp.array, true_params)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>example_prior_scale <span class="op">=</span> jax.tree.<span class="bu">map</span>(</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">lambda</span> x: jnp.full_like(x, <span class="fl">0.1</span>),</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    true_params,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>example_prior <span class="op">=</span> (example_prior_loc, example_prior_scale)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>example_log_prior <span class="op">=</span> prior_log_density(true_params, example_prior)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>example_log_prior</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="55">
+<pre><code>{&#39;a_gamma&#39;: Array(1.3836465, dtype=float32, weak_type=True),
+ &#39;a_ks&#39;: Array(1.3836465, dtype=float32, weak_type=True),
+ &#39;a_mu_max&#39;: Array(1.3836465, dtype=float32, weak_type=True),
+ &#39;log_conc_init&#39;: Array([[1.3836465, 1.3836465],
+        [1.3836465, 1.3836465],
+        [1.3836465, 1.3836465],
+        [1.3836465, 1.3836465]], dtype=float32),
+ &#39;log_gamma&#39;: Array([1.3836465, 1.3836465, 1.3836465, 1.3836465], dtype=float32),
+ &#39;log_ks&#39;: Array([1.3836465, 1.3836465, 1.3836465, 1.3836465], dtype=float32),
+ &#39;log_mu_max&#39;: Array([1.3836465, 1.3836465, 1.3836465, 1.3836465], dtype=float32),
+ &#39;log_sigma&#39;: Array([1.3836465, 1.3836465], dtype=float32),
+ &#39;log_tau_gamma&#39;: Array(1.3836465, dtype=float32, weak_type=True),
+ &#39;log_tau_ks&#39;: Array(1.3836465, dtype=float32, weak_type=True),
+ &#39;log_tau_mu_max&#39;: Array(1.3836465, dtype=float32, weak_type=True)}</code></pre>
+</div>
+</div>
+<p>now the likelihood:</p>
+<div id="737bae03" class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> likelihood_log_density(obs, params, measurement_times):</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    n_strain <span class="op">=</span> params[<span class="st">&quot;log_mu_max&quot;</span>].shape[<span class="dv">0</span>]</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    strains <span class="op">=</span> jnp.arange(n_strain)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    yhat <span class="op">=</span> jax.vmap(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">lambda</span> i: solve_monod(get_strain_params(i, params), measurement_times).ys,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    )(strains)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    log_yhat <span class="op">=</span> jnp.log(jnp.maximum(yhat, jnp.full_like(yhat, <span class="fl">1e-9</span>)))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> jnp.exp(params[<span class="st">&quot;log_sigma&quot;</span>])</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>    log_obs <span class="op">=</span> jnp.log(obs)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jsp.stats.norm.logpdf(log_obs, log_yhat, sigma)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> simulate_measurements(key, params, measurement_times):</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    n_strain <span class="op">=</span> params[<span class="st">&quot;log_mu_max&quot;</span>].shape[<span class="dv">0</span>]</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    strains <span class="op">=</span> jnp.arange(n_strain)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    yhat <span class="op">=</span> jax.vmap(</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        <span class="kw">lambda</span> i: solve_monod(get_strain_params(i, params), measurement_times).ys</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    )(strains)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    sigma <span class="op">=</span> jnp.exp(params[<span class="st">&quot;log_sigma&quot;</span>])</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    noise <span class="op">=</span> jax.random.normal(key, shape<span class="op">=</span>yhat.shape) <span class="op">*</span> sigma</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> jnp.exp(jnp.log(yhat) <span class="op">+</span> noise)</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>sim_key, key <span class="op">=</span> jax.random.split(key)</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>example_obs <span class="op">=</span> simulate_measurements(sim_key, true_params, measurement_times)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>example_obs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="56">
+<pre><code>Array([[[0.22783391, 0.96208405],
+        [0.2802295 , 1.1829902 ],
+        [0.6151478 , 0.96014714],
+        [0.808359  , 0.8715509 ],
+        [1.0103092 , 0.59285116]],
+
+       [[0.23718558, 0.87122196],
+        [0.2716521 , 1.252538  ],
+        [0.46342003, 0.94091225],
+        [0.6423971 , 1.1722577 ],
+        [0.78577113, 0.8686925 ]],
+
+       [[0.23523214, 1.3224756 ],
+        [0.29459015, 0.84505486],
+        [0.48906034, 1.069513  ],
+        [0.64119184, 0.58480805],
+        [0.7719773 , 0.76687366]],
+
+       [[0.19057587, 1.1378189 ],
+        [0.2525575 , 1.0086107 ],
+        [0.4153177 , 0.83254826],
+        [0.6303718 , 1.1003901 ],
+        [0.6436955 , 0.885998  ]]], dtype=float32)</code></pre>
+</div>
+</div>
+<div id="65f0003d" class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>likelihood_log_density(example_obs, true_params, measurement_times)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="57">
+<pre><code>Array([[[ 0.6803185 ,  0.21532977],
+        [ 1.2108381 ,  0.8320693 ],
+        [ 1.0624793 ,  1.2488012 ],
+        [ 1.6026926 ,  0.5788903 ],
+        [ 1.588413  ,  1.0270905 ]],
+
+       [[-0.29656756, -1.6563145 ],
+        [ 1.5831385 ,  0.18755579],
+        [ 1.6001872 ,  1.3399622 ],
+        [ 1.4896955 , -2.7660604 ],
+        [ 1.4342949 ,  1.0837686 ]],
+
+       [[ 0.51660633, -0.0654397 ],
+        [ 1.5944276 , -1.2969908 ],
+        [ 0.9780934 ,  0.43840444],
+        [-0.3893932 , -3.9161468 ],
+        [-1.3531868 ,  1.035675  ]],
+
+       [[ 1.6066262 ,  1.3783708 ],
+        [ 1.5671532 ,  0.90355957],
+        [ 1.5661874 , -0.6937643 ],
+        [ 0.7906398 ,  0.16633916],
+        [ 1.2486979 ,  1.3766443 ]]], dtype=float32)</code></pre>
+</div>
+</div>
+<p>And finally we can write down a joint log density function</p>
+<div id="115e5096" class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> joint_log_density(params, obs, prior, measurement_times):</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    lprior <span class="op">=</span> prior_log_density(params, prior)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    llik <span class="op">=</span> likelihood_log_density(obs, params, measurement_times)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    lprior_sum <span class="op">=</span> jax.tree.<span class="bu">reduce</span>(operator.add, jax.tree.<span class="bu">map</span>(jnp.<span class="bu">sum</span>, lprior))</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    llik_sum <span class="op">=</span> jax.tree.<span class="bu">reduce</span>(operator.add, jax.tree.<span class="bu">map</span>(jnp.<span class="bu">sum</span>, llik))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lprior_sum <span class="op">+</span> llik_sum</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>joint_log_density(true_params, example_obs,  example_prior, measurement_times)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="58">
+<pre><code>Array(60.241196, dtype=float32)</code></pre>
+</div>
+</div>
+</section>
+<section id="posterior" class="level3">
+<h3 class="anchored" data-anchor-id="posterior">Posterior</h3>
+<p>When we have concrete values for observations, prior and measurement times, we want a new function based on the joint log density, where these values are fixed. This is an ideal job for the Python standard library function <code>partial</code>. The resulting posterior log density function has only one argument for parameters.</p>
+<div id="b4071446" class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>posterior_log_density <span class="op">=</span> partial(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    joint_log_density,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    obs<span class="op">=</span>example_obs,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    prior<span class="op">=</span>example_prior,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    measurement_times<span class="op">=</span>measurement_times</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>posterior_log_density(true_params)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="59">
+<pre><code>Array(60.241196, dtype=float32)</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="mcmc" class="level2">
+<h2 class="anchored" data-anchor-id="mcmc">MCMC</h2>
+<p>Now we can generate posterior samples using adaptive Hamiltonian Monte Carlo via the library <a href="https://blackjax-devs.github.io/blackjax/">blackjax</a>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Multi-chain MCMC with Blackjax is a bit annoying to do manually so I made some convenience functions <code>run_nuts</code> and <code>get_idata</code>. These should probably already be installed - if not just run <code>uv sync</code> from the project root.</p>
+</div>
+</div>
+<div id="3596c153" class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> blackjax_utils <span class="im">import</span> run_nuts, get_idata</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>states, info <span class="op">=</span> run_nuts(</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    key,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    jax.jit(posterior_log_density),</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    init_params<span class="op">=</span>example_prior_loc,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    n_chain<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    n_warmup<span class="op">=</span><span class="dv">200</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    n_sample<span class="op">=</span><span class="dv">200</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>    target_acceptance_rate<span class="op">=</span><span class="fl">0.9</span>,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    initial_step_size<span class="op">=</span><span class="fl">0.001</span>,</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>coords <span class="op">=</span> {</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;strain&quot;</span>: strains,</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;tube&quot;</span>: tubes,</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;species&quot;</span>: species,</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;timepoint&quot;</span>: timepoints,</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>dims <span class="op">=</span> {</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;log_conc_init&quot;</span>: [<span class="st">&quot;strain&quot;</span>, <span class="st">&quot;species&quot;</span>],</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;log_gamma&quot;</span>: [<span class="st">&quot;strain&quot;</span>],</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;log_ks&quot;</span>: [<span class="st">&quot;strain&quot;</span>],</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;log_mu_max&quot;</span>: [<span class="st">&quot;strain&quot;</span>],</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;log_sigma&quot;</span>: [<span class="st">&quot;species&quot;</span>],</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> get_idata(states, info, coords<span class="op">=</span>coords, dims<span class="op">=</span>dims)</span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>n_divergent <span class="op">=</span> idata.sample_stats[<span class="st">&quot;is_divergent&quot;</span>].<span class="bu">sum</span>().item()</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f&quot;Number of divergent transitions: </span><span class="sc">{</span>n_divergent<span class="sc">}</span><span class="ss">&quot;</span>)</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(az.summary(idata))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of divergent transitions: 0
+                              mean     sd  hdi_3%  hdi_97%  mcse_mean  \
+a_gamma                     -0.601  0.095  -0.771   -0.425      0.002   
+a_ks                        -1.303  0.113  -1.509   -1.099      0.003   
+a_mu_max                    -1.698  0.100  -1.882   -1.517      0.002   
+log_conc_init[1, biomass]   -2.073  0.060  -2.182   -1.955      0.002   
+log_conc_init[1, substrate]  0.163  0.045   0.076    0.249      0.001   
+log_conc_init[2, biomass]   -1.954  0.057  -2.066   -1.855      0.002   
+log_conc_init[2, substrate]  0.179  0.045   0.094    0.260      0.001   
+log_conc_init[3, biomass]   -1.968  0.059  -2.073   -1.859      0.002   
+log_conc_init[3, substrate]  0.094  0.045   0.013    0.173      0.002   
+log_conc_init[4, biomass]   -2.064  0.061  -2.183   -1.948      0.002   
+log_conc_init[4, substrate]  0.151  0.043   0.072    0.236      0.001   
+log_gamma[1]                -0.553  0.087  -0.712   -0.387      0.003   
+log_gamma[2]                -0.606  0.100  -0.792   -0.425      0.004   
+log_gamma[3]                -0.549  0.104  -0.749   -0.361      0.004   
+log_gamma[4]                -0.612  0.101  -0.791   -0.406      0.003   
+log_ks[1]                   -1.214  0.093  -1.392   -1.040      0.003   
+log_ks[2]                   -1.156  0.106  -1.359   -0.964      0.003   
+log_ks[3]                   -1.455  0.101  -1.642   -1.270      0.004   
+log_ks[4]                   -1.057  0.096  -1.231   -0.877      0.002   
+log_mu_max[1]               -1.822  0.047  -1.910   -1.736      0.002   
+log_mu_max[2]               -2.050  0.054  -2.141   -1.942      0.002   
+log_mu_max[3]               -2.049  0.051  -2.149   -1.965      0.002   
+log_mu_max[4]               -2.026  0.056  -2.132   -1.924      0.002   
+log_sigma[biomass]          -2.558  0.094  -2.716   -2.372      0.003   
+log_sigma[substrate]        -2.113  0.080  -2.261   -1.967      0.002   
+log_tau_gamma               -2.049  0.102  -2.249   -1.861      0.003   
+log_tau_ks                  -1.204  0.099  -1.401   -1.044      0.002   
+log_tau_mu_max              -1.606  0.096  -1.798   -1.434      0.003   
+
+                             mcse_sd  ess_bulk  ess_tail  r_hat  
+a_gamma                        0.003    1653.0     656.0   1.00  
+a_ks                           0.005    1819.0     561.0   1.00  
+a_mu_max                       0.004    1993.0     714.0   1.00  
+log_conc_init[1, biomass]      0.002     720.0     592.0   1.00  
+log_conc_init[1, substrate]    0.002    1155.0     684.0   1.00  
+log_conc_init[2, biomass]      0.002     656.0     549.0   1.01  
+log_conc_init[2, substrate]    0.002    1074.0     701.0   1.01  
+log_conc_init[3, biomass]      0.002     789.0     530.0   1.00  
+log_conc_init[3, substrate]    0.001     811.0     530.0   1.00  
+log_conc_init[4, biomass]      0.002     883.0     481.0   1.00  
+log_conc_init[4, substrate]    0.002    1216.0     678.0   1.02  
+log_gamma[1]                   0.003     807.0     580.0   1.00  
+log_gamma[2]                   0.004     784.0     526.0   1.00  
+log_gamma[3]                   0.003     789.0     590.0   1.01  
+log_gamma[4]                   0.004    1326.0     559.0   1.01  
+log_ks[1]                      0.004     883.0     520.0   1.01  
+log_ks[2]                      0.004     963.0     515.0   1.00  
+log_ks[3]                      0.004     749.0     572.0   1.01  
+log_ks[4]                      0.004    1763.0     629.0   1.00  
+log_mu_max[1]                  0.001     630.0     562.0   1.00  
+log_mu_max[2]                  0.002     564.0     644.0   1.00  
+log_mu_max[3]                  0.002     650.0     606.0   1.00  
+log_mu_max[4]                  0.002     795.0     586.0   1.00  
+log_sigma[biomass]             0.003    1028.0     528.0   1.01  
+log_sigma[substrate]           0.003    1752.0     582.0   1.00  
+log_tau_gamma                  0.003     930.0     654.0   1.00  
+log_tau_ks                     0.004    1633.0     691.0   1.00  
+log_tau_mu_max                 0.004    1031.0     632.0   1.00  </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>How good was our model?</p>
+<p>To answer this question, try:</p>
+<ul>
+<li>for each parameter, compare the true value with the model’s marginal posterior distribution.</li>
+<li>plot the timecourses for a sample of parameters and compare with the real timecourse</li>
+</ul>
+</div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

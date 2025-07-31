@@ -1,3 +1,5 @@
+src/stan/
+ode.py
 *.ipynb_checkpoints*
 *_extensions*
 docs/_book
