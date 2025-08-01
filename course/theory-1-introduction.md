@@ -16,7 +16,7 @@ Mathematically, a probability function is a function  $p: \mathcal{S} \rightarro
 - $p(\Omega) = 1$
 - If $A, B \in \mathcal{S}$ are disjoint (i.e. they have no members in common), then $p(A\cup B) = p(A) + p(B)$
 
-A "random variable" is a function from the set $\Omega$ to another set, often the real numbers. Especially when considering continuous sample spaces, it is often convenient to express events in terms of random variables rather than by defining the subset, for example, suppose we have $\Omega=\[-1, 1\]$ and random variable $A:\Omega\rightarrow\mathbb{R}$, where $A(x)=|10x|, x\in\Omega$. Then the expression $p(A>5)$ refers to the probability of the subset $\{x:A(x)>5\}$, i.e. the subset containing numbers between 0.5 and 1, and between $-0.5 and -1$.
+A "random variable" is a function from the set $\Omega$ to another set, often the real numbers. Especially when considering continuous sample spaces, it is often convenient to express events in terms of random variables rather than by defining the subset, for example, suppose we have $\Omega=[-1, 1]$ and random variable $A:\Omega\rightarrow\mathbb{R}$, where $A(x)=|10x|, x\in\Omega$. Then the expression $p(A>5)$ refers to the probability of the subset $\{x:A(x)>5\}$, i.e. the subset containing numbers between 0.5 and 1, and between -0.5 and -1.
 
 Intuitively, probability functions describe more or less anything that can be measured. For example, a jug containing 1 unit of water
 
@@ -30,7 +30,7 @@ To draw out the analogy a little and connect the mathematical definition with th
 
 - In this case the set $\Omega$ corresponds to all the water inside the jug, modelled as a continuous set of points.
 - $\mathcal{S}$ then represents any possible way of arranging all of the water. dividing the water in the jug into subsets. For example, pouring some of it out of the jug and into two cups.
-- For any $S\in\mathcal{S}$, $p(S)$ is just the amount of water that $S$ contains, relative to the total amount $p(\Omega) = 1$. For example, perhaps cup $A$ contains $p(A)=0.4$ units of water and similarly for the other cup, $p(B) = 0.2$.
+- For any $X\in\mathcal{S}$, $p(X)$ is just the amount of water that $X$ contains, relative to the total amount $p(\Omega) = 1$. For example, perhaps cup $A$ contains $p(A)=0.4$ units of water and similarly for the other cup, $p(B) = 0.2$.
 - Note that, as long as the cups do not contain the same water (i.e. they do not belong to a topologist and are not bath toys for a baby), subsets $A$ and
 $B$ are disjoint, so that the total amount of water poured out is $p(A\cup B) = p(A) + p(B) =  0.6$
 
@@ -134,7 +134,8 @@ The derivation of Bayes' theorem requires us to derive different conditional pro
 
 ::: {#fig-venn_diagram width="40%"}
 
-[Venn_diagram_bayes](img/venn_diagram_bayes.png)]{height=80%}
+![](img/venn_diagram_bayes.png)
+
 A figure to help derive Bayes' theorem
 :::
 
@@ -184,7 +185,7 @@ Bayesian inference is not the best choice for every data analysis problem: there
 The biggest reason not to use Bayesian inference is its often-high computational cost. The section on MCMC will touch on the specifics of this, but here is the short version. Suppose we are interested in some unknown quantity, perhaps the concentration of salt molecules in the bowl of soup. We typically want to know something like "Is the amount of salt correct", i.e. is $\|\text{salt}\|$ greater than some number $l$ and less than some other number $h$. The way to answer this question using Bayesian inference is to first taste a spoonful, then, probably using Bayes's theorem, write down a probability density function that assigns a number to any possible value of $\|\text{salt}\|$. To answer our question, we have to integrate our function $p$ between $l$ and $h$:
 
 $$
-\text{Probability that the saltiness is correct} = \int_{l}^{h}p(spoon\mid\\|\text{salt}\|)d\|\text{salt}\|
+\text{Probability that the saltiness is correct} = \int_{l}^{h}p(spoon\mid\|\text{salt}|)d|\text{salt}|
 $$
 
 This is the problem: integration is difficult! Many probability functions accurately describe experimental setups, but are impossible to differentiate analytically. In such cases doing Bayesian inference requires expensively solving the integration problem numerically, using methods like Monte Carlo integration. This case is typical, so in practice Bayesian inference requires expensive computation.
@@ -244,8 +245,10 @@ and secondly, there is the measurement model that quantifies the protein. We can
 represent the model as follows
 
 $$
-\mu_{reactor} \sim LogNormal(\mu_{true, reactor}, \sigma_{quant}) \\
-\mu_{true, reactor} \sim LogNormal(\mu_{true, strain}, \sigma_{biological}
+\begin{align*}
+\mu_{reactor} &\sim LogNormal(\mu_{true, reactor}, \sigma_{quant}) \\
+\mu_{true, reactor} &\sim LogNormal(\mu_{true, strain}, \sigma_{biological})
+\end{align*}
 $$
 
 We have done this experiment many times before and we have a reasonable idea
@@ -254,8 +257,10 @@ expect between our reactors.
 
 
 $$
-\sigma_{quant} \sim log_normal(log(0.01), 0.1) \\
-\sigma_{biological} \sim HalfNormal(0.03)
+\begin{align*}
+\sigma_{quant} &\sim logNormal(log(0.01), 0.1) \\
+\sigma_{biological} &\sim HalfNormal(0.03)
+\end{align*}
 $$
 
 By doing so we are explicit about how and what we are choosing to

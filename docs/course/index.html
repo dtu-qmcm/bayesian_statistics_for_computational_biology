@@ -4875,7 +4875,10 @@ MathJax.Hub.Config({
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#welcome" id="toc-welcome" class="nav-link active" data-scroll-target="#welcome">Welcome!</a></li>
+  <li><a href="#welcome" id="toc-welcome" class="nav-link active" data-scroll-target="#welcome">Welcome!</a>
+  <ul class="collapse">
+  <li><a href="#how-to-follow-the-practical-lessons" id="toc-how-to-follow-the-practical-lessons" class="nav-link" data-scroll-target="#how-to-follow-the-practical-lessons">How to follow the practical lessons?</a></li>
+  </ul></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="index.ipynb" download="index.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li></ul></div></nav>
     </div>
@@ -4901,31 +4904,14 @@ MathJax.Hub.Config({
 <li>Perform Bayesian optimisation</li>
 <li>Understand recent trends in Bayesian statistical inference</li>
 </ul>
-<p>The learning material consists of 20 sessions, each intended to take up half a day over two weeks. The third week of the course is set aside for the students to complete a project. For the first two weeks, the first half-day will generally cover theoretical topics, with the second consisting of practical, computer-based tasks. Here is the rough plan:</p>
-<ul>
-<li>Day 1. am: Bayesian statistical inference, motivating example</li>
-<li>Day 1. pm: Set up computers (Python, uv, git, editor)</li>
-<li>Day 2. am: Regression, formula-based models and why they aren’t enough</li>
-<li>Day 2. pm: Some regression examples, bambi</li>
-<li>Day 3. am: Markov Chain Monte Carlo, why you still probably want to use it.</li>
-<li>Day 3. pm: A Bayesian statistics stack for computational biology</li>
-<li>Day 4. am: What to do with MCMC output?</li>
-<li>Day 4. pm: Worked examples: - convergence - divergent transitions - model comparison - change of variables causing bad model</li>
-<li>Day 5. am: Bayesian workflow</li>
-<li>Day 5. pm: Workflow example with automation</li>
-<li>Day 6. am: Ordinary differential equations</li>
-<li>Day 6. pm: Diffrax, fermentation examples</li>
-<li>Day 7. am: Algebraic equation systems, implicit differentiation</li>
-<li>Day 7. pm: Optimistix, steady state example, grapevine</li>
-<li>Day 8. am: Gaussian processes, HSGPs</li>
-<li>Day 8. pm: GP example</li>
-<li>Day 9. am: Bayesian optimisation</li>
-<li>Day 9. pm: BO example</li>
-<li>Day 10. am: Fun new Bayesian trends - Probabilistic numerics - Amortised Bayesian inference - New MCMC algorithms - Control - Normalising flows</li>
-<li>Day 10. pm: examples</li>
-</ul>
+<p>The learning material consists of 20 sessions, each intended to take up half a day over two weeks. The third week of the course is set aside for the students to complete a project. For the first two weeks, the first half-day will generally cover theoretical topics, with the second consisting of practical, computer-based tasks.</p>
+<section id="how-to-follow-the-practical-lessons" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-follow-the-practical-lessons">How to follow the practical lessons?</h2>
+<p>All of the lessons come with companion jupyter notebooks in the folder <code>docs/course</code>.</p>
+<p>To follow a lesson, first make a new folder in the project root, maybe called <code>notebooks</code>, copy the lesson’s companion note in there and start running cells.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

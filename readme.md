@@ -63,6 +63,12 @@ This repository contains:
 
 Why is the html folder called `docs`? Well, that just makes it easier to avoid effort using GitHub pages.
 
+## How to follow the practical lessons?
+
+All of the lessons come with companion jupyter notebooks in the folder `docs/course`.
+
+To follow a lesson, first make a new folder in the project root, maybe called `notebooks`, copy the lesson's companion note in there and start running cells. 
+
 ## Licence
 
 This work is licensed under a
