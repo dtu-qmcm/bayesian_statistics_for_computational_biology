@@ -8,7 +8,9 @@ authors = [
 dependencies = [
     "arviz>=0.17.0",
     "bambi>=0.15.0",
+    "blackjax>=1.2.5",
     "diffrax>=0.7.0",
+    "dm-tree>=0.1.9",
     "jax>=0.6.2",
     "jupyter>=1.0.0",
     "optimistix>=0.0.10",
@@ -18,6 +20,13 @@ dependencies = [
 requires-python = ">=3.11"
 readme = "README.md"
 license = {text = "MIT"}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/blackjax_utils"]
 
 
 [tool.pdm]

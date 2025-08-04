@@ -1,0 +1,123 @@
+# Bayesian statistical software
+
+To do a Bayesian statistical analysis you probably need to do the following things:
+
+- Extracting, transforming, validating and saving data
+- Model definition
+- Model fitting
+- Analysing and diagnosing fits
+- Plotting
+- Writing
+- Orchestrating, aka tying everything together and making it reproducible
+
+Software can help with all these activities, but it can be tricky to choose what software to use. This afternoon's session will briefly review some of the available options and make some recommendations for our specific case of Bayesian statistics in computational biology.
+
+## Whistle-stop tour
+
+### ETL
+
+[ETL](https://en.wikipedia.org/wiki/Extract,_transform,_load) stands for "Extract, transform, load". As well as being a good keyword for your CV, this roughly covers the things you need to do before thinking about modelling.
+
+For this you probably need to write some code in R, Python, some other high-level programming language, SQL or shell scripts. Out of these we will focus on Python in this course.
+
+In particular it is good to know how to use these Python packages:
+
+- [pandas](https://pandas.pydata.org/) the most used dataframe library
+- [polars](https://docs.pola.rs/user-guide/getting-started/) an alternative dataframe library with increasing popularity and in my opinion a nicer api than pandas
+- [numpy](https://numpy.org/) numerical array operations in Python. See also [I don't like Numpy](https://dynomight.net/numpy/)
+- [xarray](https://docs.xarray.dev/en/stable/) labelled multi-dimensional arrays
+- [pydantic](https://docs.pydantic.dev/latest/) dataclasses that are easy to validate and serialise
+- [patito](https://github.com/JakobGM/patito) pydantic-style validation for polars dataframes
+
+Also check out [dbt](https://docs.getdbt.com/docs/get-started-dbt).
+
+### Model definition
+
+The next task is to define models, typically quite a few.
+
+As we have already seen, to define a Bayesian statistical model it suffices to specify a probability density for any possible combination of data and parameters. For this you need a probabilistic programming language or PPL.
+
+We have already met one such framework, namely bambi, a good example of a formula-based probabilistic programming language. This kind of PPL can achieve a lot of succinctness, making it possible to define statistical models unambiguously with very little code, which is very useful when you want to easily spot differences between models. On the other hand, formula-based PPLs are inflexible: there are a lot of useful models that they can't define, or for which doing so is very awkward, such as models whose data is not naturally tabular.
+
+A level more flexible are specialised Bayesian statistics-oriented probabilistic programming languages like PyMC, Stan and numpyro. These allow a lot more flexibility while still providing statistics-specific help like pre-computed distributions and transformations as well as helpful guardrails.
+
+Of these, Stan is my favourite for several reasons:
+
+- it is very flexible, allowing definition of almost any statistical model.
+- it has a large, active user and developer community
+- It is less abstract than the alternatives. For example, specifying a model involves explicitly calculating the joint density, i.e. saying how to perform a computation that outputs a number. This makes it much easier to think about performance compared with frameworks like PyMC where one defines models by declaring abstract random variable objects (though there are advantages to the abstraction in simpler cases).
+
+Here is a very nice course in Bayesian statistics using numpyro: <https://elizavetasemenova.github.io/prob-epi/01_intro.html>.
+
+An even more flexible option, which we will explore in this course, is to use a modular approach based on JAX, a Python library that augments numpy and scipy with automatic differentiation, the key ingredient for Bayesian computation. Though it is increasingly popular for Bayesian statistics, JAX is a general scientific machine learning framework that doesn't target this application specifically. A Bayesian linear regression model defined in JAX might look like this:
+
+```{.python}
+import jax 
+from jax import numpy as jnp
+from jax.scipy.stats import norm
+
+def my_log_density(d: tuple[jax.Array], theta: dict[str, jax.Array]) -> float:
+    y, x = d
+    lprior = (
+        norm.lpdf(theta["alpha"], loc=0.0, scale=1.0).sum()
+        + norm.lpdf(theta["beta"], loc=0.0, scale=1.0).sum()
+        + norm.lpdf(theta["log_sigma"], loc=0.0, scale=1.0).sum()
+    )
+    yhat = theta["alpha"] + x @ theta["beta"]
+    sigma = jnp.exp(theta["log_sigma"])
+    llik = norm.lpdf(y, loc=yhat, scale=sigma).sum()
+    return lprior + llik
+```
+
+This approach allows for even more flexibility than specialised Bayesian PPLs, at the cost of even more convenience. One such cost is the need to handle parameter constraints manually, as in the log-transform of `sigma` above. On the other hand, defining models as JAX functions allows us full control over not just what model we implement, but also how it is computed. Specifically, JAX makes it possible to run code on GPU/TPUs, achieve fine-grained parallelisation, access a wide range of MCMC samplers and numerical solvers and connect models with downstream applications like optimisation.
+
+The reason we will focus on this approach rather than traditional Bayesian PPLs is that its advantages are particularly pertinent to our intended topics including ODEs, Gaussian processes and Bayesian optimisation.
+
+### Model fitting
+
+The best general purpose method is adaptive Hamiltonian Monte Carlo. This algorithm is implemented by Stan, PyMC, numpyro, blackjax and more.
+
+In the last few years a lot of promising new MCMC algorithms have emerged, many of which are implemented in blackjax. [This page](https://blackjax-devs.github.io/blackjax/autoapi/blackjax/mcmc/index.html) lists what is currently available and [this book](https://blackjax-devs.github.io/sampling-book/) contains many helpful examples.
+
+Approximate Bayesian inference methods include variational inference. Stan and blackjax both implement these.
+
+Normalising flows [try flowMC](https://flowmc.readthedocs.io/en/main/)
+
+### Analysing and diagnosing fits
+
+[Arviz](https://python.arviz.org/en/stable/) is a nice library for storing and analysing MCMC output. We use it a lot in this course.
+
+
+### Plotting
+
+Arviz provides some plotting functions that are nice for diagnostics.
+
+For plots to include in a publication I recommend starting from scratch with[ matplotlib](https://matplotlib.org/): it can be painful but (unlike some alternatives) with enough work you can make basically any plot you can think of.
+
+### Writing
+
+This website is written using [Quarto](https://quarto.org/). It lets you easily turn markdown documents into a wide range of other formats and even execute code that lives inside them.
+
+Jupyter is the de facto standard for writing interactive Python notebooks. If it's where you spend most of your Python time I recommend to experiment with writing scripts and packages instead, as well as getting to know the Python debugger pdb. These things are not that scary and can let you do things that are really tricky with notebooks. The strength of notebooks is being able to run code, write documentation and look at graphs in the same place. 
+
+[Marimo](https://marimo.io/) is an alternative notebook package that describes itself as "next-generation".
+
+[Pandoc](https://pandoc.org/) is a great tool for converting documents from one form to another. If you want to write an academic paper in markdown it might be a better choice than quarto due to its compatibility with latex templates.
+
+### Orchestrating
+
+[Make](https://www.gnu.org/software/make/) is the classic task runner. As its name suggests, it focuses on automating the task of making files. It is old and boring, which is a good reason to get to know it!
+
+[Just](https://just.systems/man/en/) is a task runner that "just" aims to run tasks (as opposed to make which is really a build system). 
+
+shell scripts are another valid alternative for automating your tasks.
+
+[Nextflow](https://www.nextflow.io/) is a pipeline automator oriented towards scientific workflows.
+
+[snakemake](https://snakemake.readthedocs.io/en/stable/) is another scientific workflow automator.
+
+## References
+
+[@strumbeljPresentFutureSoftware]
+<https://elizavetasemenova.github.io/prob-epi/01_intro.html>
+

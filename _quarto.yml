@@ -12,37 +12,48 @@ project:
   type: website
   output-dir: "docs"
   render:
-    - course_materials/index.md
-    - course_materials/day-1-am-introduction.md
-    - course_materials/day-1-am-motivating-example.ipynb
-    - course_materials/day-1-pm-setup.md
-    - course_materials/day-2-am-regression.md
-    - course_materials/day-2-pm-bambi.qmd
-    - course_materials/day-3-am-mcmc.qmd
-    - course_materials/day-3-pm-stack.qmd
+    - course/index.md
+    - course/theory-1-introduction.md
+    - course/practical-1-setup.md
+    - course/motivating-example.ipynb
+    - course/theory-2-regression.md
+    - course/practical-2-bambi.qmd
+    - course/theory-3-mcmc.qmd
+    - course/practical-3-stack.qmd
+    - course/practical-4-jax.qmd
+    - course/theory-4-diagnostics.qmd
+    - course/practical-5-diagnostics.qmd
+    - course/theory-5-odes.md
+    - course/practical-6-odes.qmd
 
 website:
   title: "Bayesian Statistics for Computational Biology"
   navbar:
     tools:
       - icon: github
-        url:  https://github.com/biosustain/bayesian_statistics_for_computational_biology
+        url:  https://github.com/dtu-qmcm/bayesian_statistics_for_computational_biology
   sidebar:
     style: "docked"
     serach: true
     contents:
       - section: "Admin"
         contents:
-        - course_materials/index.md
-      - section: "Course materials"
+        - course/index.md
+      - section: "Theory"
         contents:
-        - course_materials/day-1-am-introduction.md
-        - course_materials/day-1-am-motivating-example.ipynb
-        - course_materials/day-1-pm-setup.md
-        - course_materials/day-2-am-regression.md
-        - course_materials/day-2-pm-bambi.qmd
-        - course_materials/day-3-am-mcmc.qmd
-        - course_materials/day-3-pm-stack.qmd
+        - course/theory-1-introduction.md
+        - course/theory-2-regression.md
+        - course/theory-3-mcmc.qmd
+        - course/theory-4-diagnostics.qmd
+        - course/theory-5-odes.md
+      - section: "Practical"
+        contents:
+        - course/practical-1-setup.md
+        - course/practical-2-bambi.qmd
+        - course/practical-3-stack.qmd
+        - course/practical-4-jax.qmd
+        - course/practical-5-diagnostics.qmd
+        - course/practical-6-odes.qmd
 
 format:
   html:

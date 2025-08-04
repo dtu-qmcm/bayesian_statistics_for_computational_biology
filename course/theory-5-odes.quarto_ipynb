@@ -1,0 +1,803 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Introduction\n",
+        "\n",
+        "Recall that in a regression model we have some measurements, some measurable quantities and some covariates. It's convenient to split the problem of estimating new measurements into a probabilistic part that connects the measurement with the measurable, and a deterministic part that connects the parameters and covariates with the expected value $\\hat{y}$ of the measurable (or some other statistic). In generalised linear models the covariates connect with the measurable by a linear relationship and a link function, e.g. $\\hat{y} = l(x\\beta)$ for some link function $l$.\n",
+        "\n",
+        "Today we look at Bayesian regression models where the deterministic part involves an **initial value problem** whose dynamics are by a system of **ordinary differential equations**, aka ODEs.\n",
+        "\n",
+        "This kind of model comes up a lot in biology because we often have detailed scientific knowledge about how a system changes, coupled with measurements of it was at different times.\n",
+        "\n",
+        "If there is an analytic solution to the equation system, we can just include the solution in our statistical model, leading to a slightly more involved deterministic component: easy, maybe we just have to write a few lines rather than just `x@b`!\n",
+        "\n",
+        "However, often we want to solve an initial value problem whose system of equations has no analytic solution, but which we can solve approximately using numerical methods.\n",
+        "\n",
+        "This is tricky in the context of Hamiltonian Monte Carlo for two reasons:\n",
+        "\n",
+        "- 1. Computation: HMC requires many evaluations of the log probability density function and its gradients. At every evaluation, the sampler needs to solve the embedded equation system and find the gradients of the solution with respect to all model parameters.\n",
+        "\n",
+        "- 2. Extra source of error: how good of an approximation is good enough?\n",
+        "\n",
+        "However, we can still do it!\n",
+        "\n",
+        "Reading:\n",
+        "\n",
+        "- @timonenImportanceSamplingApproach2022\n",
+        "- Stan user guide sections: [algebraic equation systems](https://mc-stan.org/docs/stan-users-guide/algebraic-equations.html), [ODE systems](https://mc-stan.org/docs/stan-users-guide/odes.html), [DAE systems](https://mc-stan.org/docs/stan-users-guide/dae.html).\n",
+        "\n",
+        "## Differential Equations\n",
+        "Are equations that relate functions to their derivatives. Some examples of these functions are quantities such as\n",
+        "\n",
+        "- 1. The volume of the liquid in a  bioreactor over time\n",
+        "\n",
+        "$$\n",
+        "\\frac{dV}{dt} = F_{in} - F_{out}.\n",
+        "$$\n",
+        "\n",
+        "- 2. The temperature of a steel rod with heat source at one end\n",
+        "\n",
+        "$$\n",
+        "\\frac{dT}{dt} = \\alpha \\frac{d^{2}T}{dx^{2}}.\n",
+        "$$\n",
+        "\n",
+        "- 3. The concentration of a substrate in a bioreactor over time (example below). \n",
+        "As mentioned previously, the solution to many of these sorts of differential equations does not have an algebraic solution, such as $T(t) = f(x, t)$.\n",
+        "\n",
+        "## Ordinary Differential Equations\n",
+        "\n",
+        "Arguably the most simple type of differential equation is an ordinary differential equation. An ordinary differential equaiton has only one independent parameter, typically this will be either time or a dimension.\n",
+        "\n",
+        "::: {.callout-note}\n",
+        "\n",
+        "Other kinds of differential equations include [partial differential equations](https://en.wikipedia.org/wiki/Partial_differential_equation) and [stochastic differential equations](https://en.wikipedia.org/wiki/Stochastic_differential_equation) - we will only consider ODEs for the remainder of the course. \n",
+        "\n",
+        ":::\n",
+        "\n",
+        "To gain some intuition about what is going on we will investigate a very simple ODE system with just one state variable: the height of an initially empty reactor over time with constant flow rates into and out of the reactor.\n",
+        "\n",
+        "![Reactor](img/reactor_ode.png)\n",
+        "\n",
+        "$$\n",
+        "\\begin{align*}\n",
+        "\\frac{dV}{dt} &= F_{in} - F_{out} \\\\\n",
+        "\\frac{dh}{dt} &= \\frac{F_{in} - F_{out}}{Area} \\\\\n",
+        "              &= \\frac{0.1 - 0.02 * h}{1} (\\frac{m^3}{min})\n",
+        "\\end{align*}\n",
+        "$$\n",
+        "\n",
+        "This ODE system can be manually integrated and has an analytic solution. We shall investigate how the height changes over time and what the steady state height is.\n",
+        "\n",
+        "The first question is an example of an `initial-value problem`. Where we know the initial height (h=0), and we can solve the integral\n",
+        "\n",
+        "$$\n",
+        "dh = \\int_{t=0}^{t} 0.1 - 0.02*h dt.\n",
+        "$$\n",
+        "\n",
+        "By using integrating factors (Don't worry about this) we can solve  for height\n",
+        "\n",
+        "$$\n",
+        "h = \\frac{0.1}{0.02} + Ce^{-0.02t}.\n",
+        "$$\n",
+        "\n",
+        "Finally, we can solve for the height by substituting what we know: at $t = 0$, $h = 0$. Therefore, we arrive at the final equation\n",
+        "\n",
+        "$$\n",
+        " h = \\frac{0.1}{0.02}(1 - e^{-0.02t}).\n",
+        "$$\n",
+        "\n",
+        "We can answer the question about what its final height would be by solving  for the `steady-state`\n",
+        "\n",
+        "$$\n",
+        "\\frac{dh}{dt} = 0.\n",
+        "$$\n",
+        "\n",
+        "Where after rearranging we find the final height equal to 5m, within the \n",
+        "dimensions of the reactor\n",
+        "\n",
+        "$$\n",
+        "h = \\frac{0.1}{0.02} (m).\n",
+        "$$\n",
+        "\n",
+        "## Example\n",
+        "\n",
+        "We have some tubes containing a substrate $S$ and some biomass $C$ that we think approximately follow the Monod equation for microbial growth:\n",
+        "\n",
+        "$$\n",
+        "\\begin{align*}\n",
+        "\\frac{dX}{dt} &= \\frac{\\mu_{max}\\cdot S(t)}{K_{S} + S(t)}\\cdot X(t) \\\\\n",
+        "\\frac{dS}{dt} &= -\\gamma \\cdot \\frac{\\mu_{max}\\cdot S(t)}{K_{s} + S(t)} \\cdot X(t)\n",
+        "\\end{align*}\n",
+        "$$\n",
+        "\n",
+        "We measured $X$ and $S$ at different time points in some experiments, with results $y_X$ and $y_S$ and we want to try and find out $\\mu_{max}$, $K_{S}$ and $\\gamma$ for the different strains in the tubes.\n",
+        "\n",
+        "You can read more about the Monod equation in @allenBacterialGrowthStatistical2019.\n",
+        "\n",
+        "### What we know\n",
+        "\n",
+        "$\\mu_{max}, K_S, \\gamma, S, X$ are non-negative.\n",
+        "\n",
+        "$S(0)$ and $X(0)$ vary a little by tube.\n",
+        "\n",
+        "$\\mu_{max}, K_S, \\gamma$ vary by strain.\n",
+        "\n",
+        "Measurement noise is roughly proportional to measured quantity.\n",
+        "\n",
+        "### Statistical model\n",
+        "\n",
+        "We use two regression models to describe the measurements:\n",
+        "\n",
+        "\\begin{align*}\n",
+        "y_X &\\sim LN(\\ln{\\hat{X}}, \\sigma_{X})  \\\\\n",
+        "y_S &\\sim LN(\\ln{\\hat{S}}, \\sigma_{S})\n",
+        "\\end{align*}\n",
+        "\n",
+        "\n",
+        "To capture the variation in parameters by tube and strain we add a hierarchical\n",
+        "model:\n",
+        "\n",
+        "\\begin{align*}\n",
+        "\\ln{\\mu_{max}} &\\sim N(a_{\\mu_{max}}, \\tau_{\\mu_max}) \\\\\n",
+        "\\ln{\\gamma} &\\sim N(a_{gamma}, \\tau_{\\gamma}) \\\\\n",
+        "\\ln{\\mu_{K_S}} &\\sim N(a_{K_S}, \\tau_{K_S})\n",
+        "\\end{align*}\n",
+        "\n",
+        "To get a true abundance given some parameters we put an ode in the model:\n",
+        "\n",
+        "$$\n",
+        "\\hat{X}(t), \\hat{S}(t) = \\text{solve-monod-equation}(t, X_0, S_0, \\mu_max, \\gamma, K_S)\n",
+        "$$\n",
+        "\n",
+        "### imports\n"
+      ],
+      "id": "b6566ec2"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import itertools\n",
+        "\n",
+        "import arviz as az\n",
+        "import cmdstanpy\n",
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "from matplotlib import pyplot as plt"
+      ],
+      "id": "2db8bd62",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Specify true parameters\n",
+        "\n",
+        "In order to avoid doing too much annoying handling of strings we assume that all\n",
+        "the parts of the problem have meaningful 1-indexed integer labels: for example,\n",
+        "species 1 is biomass.\n",
+        "\n",
+        "This code specifies the dimensions of our problem.\n"
+      ],
+      "id": "8484c45d"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "N_strain = 4\n",
+        "N_tube = 16\n",
+        "N_timepoint = 20\n",
+        "duration = 15\n",
+        "strains = [i+1 for i in range(N_strain)]\n",
+        "tubes = [i+1 for i in range(N_tube)]\n",
+        "species = [1, 2]\n",
+        "measurement_timepoint_ixs = [4, 7, 12, 15, 17]\n",
+        "timepoints = pd.Series(\n",
+        "    np.linspace(0.01, duration, N_timepoint),\n",
+        "    name=\"time\",\n",
+        "    index=range(1, N_timepoint+1)\n",
+        ")\n",
+        "SEED = 12345\n",
+        "rng = np.random.default_rng(seed=SEED)"
+      ],
+      "id": "a5768f7f",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This code defines some true values for the parameters - we will use these to\n",
+        "generate fake data.\n"
+      ],
+      "id": "0eea39f3"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "true_param_values = {\n",
+        "    \"a_mu_max\": -1.7,\n",
+        "    \"a_ks\": -1.3,\n",
+        "    \"a_gamma\": -0.6,\n",
+        "    \"t_mu_max\": 0.2,\n",
+        "    \"t_ks\": 0.3,\n",
+        "    \"t_gamma\": 0.13,\n",
+        "    \"species_zero\": [\n",
+        "        [\n",
+        "            np.exp(np.random.normal(-2.1, 0.05)), \n",
+        "            np.exp(np.random.normal(0.2, 0.05))\n",
+        "        ] for _ in range(N_tube)\n",
+        "    ],\n",
+        "    \"sigma_y\": [0.08, 0.1],\n",
+        "    \"ln_mu_max_z\": np.random.normal(0, 1, size=N_strain).tolist(),\n",
+        "    \"ln_ks_z\": np.random.normal(0, 1, size=N_strain).tolist(),\n",
+        "    \"ln_gamma_z\": np.random.normal(0, 1, size=N_strain).tolist(),\n",
+        "}\n",
+        "for var in [\"mu_max\", \"ks\", \"gamma\"]:\n",
+        "    true_param_values[var] = np.exp(\n",
+        "        true_param_values[f\"a_{var}\"]\n",
+        "        + true_param_values[f\"t_{var}\"] * np.array(true_param_values[f\"ln_{var}_z\"])\n",
+        "    ).tolist()"
+      ],
+      "id": "51a11a1a",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### A bit of data transformation\n",
+        "\n",
+        "This code does some handy transformations on the data using pandas, giving us a\n",
+        "table of information about the measurements.\n"
+      ],
+      "id": "c501a113"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "tube_to_strain = pd.Series(\n",
+        "    [\n",
+        "        (i % N_strain) + 1 for i in range(N_tube)  # % operator finds remainder\n",
+        "    ], index=tubes, name=\"strain\"\n",
+        ")\n",
+        "measurements = (\n",
+        "    pd.DataFrame(\n",
+        "        itertools.product(tubes, measurement_timepoint_ixs, species),\n",
+        "        columns=[\"tube\", \"timepoint\", \"species\"],\n",
+        "        index=range(1, len(tubes) * len(measurement_timepoint_ixs) * len(species) + 1)\n",
+        "    )\n",
+        "    .join(tube_to_strain, on=\"tube\")\n",
+        "    .join(timepoints, on=\"timepoint\")\n",
+        ")"
+      ],
+      "id": "fd5ad8f9",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Generating a Stan input dictionary\n",
+        "\n",
+        "This code puts the data in the correct format for cmdstanpy.\n"
+      ],
+      "id": "efc270f1"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "stan_input_structure = {\n",
+        "    \"N_measurement\": len(measurements),\n",
+        "    \"N_timepoint\": N_timepoint,\n",
+        "    \"N_tube\": N_tube,\n",
+        "    \"N_strain\": N_strain,\n",
+        "    \"tube\": measurements[\"tube\"].values.tolist(),\n",
+        "    \"measurement_timepoint\": measurements[\"timepoint\"].values.tolist(),\n",
+        "    \"measured_species\": measurements[\"species\"].values.tolist(),\n",
+        "    \"strain\": tube_to_strain.values.tolist(),\n",
+        "    \"timepoint_time\": timepoints.values.tolist(),\n",
+        "}"
+      ],
+      "id": "d9e828d0",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "This code defines some prior distributions for the model's parameters\n"
+      ],
+      "id": "79475f75"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "priors = {\n",
+        "    # parameters that can be negative:\n",
+        "    \"prior_a_mu_max\": [-1.8, 0.2],\n",
+        "    \"prior_a_ks\": [-1.3, 0.1],\n",
+        "    \"prior_a_gamma\": [-0.5, 0.1],\n",
+        "    # parameters that are non-negative:\n",
+        "    \"prior_t_mu_max\": [-1.4, 0.1],\n",
+        "    \"prior_t_ks\": [-1.2, 0.1],\n",
+        "    \"prior_t_gamma\": [-2, 0.1],\n",
+        "    \"prior_species_zero\": [[[-2.1, 0.1], [0.2, 0.1]]] * N_tube,\n",
+        "    \"prior_sigma_y\": [[-2.3, 0.15], [-2.3, 0.15]],\n",
+        "}"
+      ],
+      "id": "7756f7b8",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "The next bit of code lets us configure Stan's interface to the Sundials ODE\n",
+        "solver.\n"
+      ],
+      "id": "6d8f43b3"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "ode_solver_configuration = {\n",
+        "    \"abs_tol\": 1e-7,\n",
+        "    \"rel_tol\": 1e-7,\n",
+        "    \"max_num_steps\": int(1e7)\n",
+        "}"
+      ],
+      "id": "967f7c66",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Now we can put all the inputs together \n"
+      ],
+      "id": "483fcebb"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "stan_input_common = stan_input_structure | priors | ode_solver_configuration"
+      ],
+      "id": "43e6a9d6",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Load the model\n",
+        "This code loads the Stan program at `monod.stan` as a `CmdStanModel` object and\n",
+        "compiles it using cmdstan's compiler.\n"
+      ],
+      "id": "337cf954"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "model = cmdstanpy.CmdStanModel(stan_file=\"../src/stan/monod.stan\")\n",
+        "print(model.code())"
+      ],
+      "id": "481ce189",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Sample in fixed param mode to generate fake data\n"
+      ],
+      "id": "444132b3"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "stan_input_true = stan_input_common | {\n",
+        "    \"y\": np.ones(len(measurements)).tolist(),  # dummy values as we don't need measurements yet\n",
+        "    \"likelihood\": 0                            # we don't need to evaluate the likelihood\n",
+        "}\n",
+        "coords = {\n",
+        "    \"strain\": strains,\n",
+        "    \"tube\": tubes,\n",
+        "    \"species\": species,\n",
+        "    \"timepoint\": timepoints.index.values,\n",
+        "    \"measurement\": measurements.index.values\n",
+        "}\n",
+        "dims = {\n",
+        "    \"abundance\": [\"tube\", \"timepoint\", \"species\"],\n",
+        "    \"mu_max\": [\"strain\"],\n",
+        "    \"ks\": [\"strain\"],\n",
+        "    \"gamma\": [\"strain\"],\n",
+        "    \"species_zero\": [\"tube\", \"species\"],\n",
+        "    \"y\": [\"measurement\"],\n",
+        "    \"yrep\": [\"measurement\"],\n",
+        "    \"llik\": [\"measurement\"]\n",
+        "}\n",
+        "\n",
+        "mcmc_true = model.sample(\n",
+        "    data=stan_input_true,\n",
+        "    iter_sampling=1,\n",
+        "    fixed_param=True,\n",
+        "    chains=1,\n",
+        "    refresh=1,\n",
+        "    inits=true_param_values,\n",
+        "    seed=SEED,\n",
+        ")\n",
+        "idata_true = az.from_cmdstanpy(\n",
+        "    mcmc_true,\n",
+        "    dims=dims,\n",
+        "    coords=coords,\n",
+        "    posterior_predictive={\"y\": \"yrep\"},\n",
+        "    log_likelihood=\"llik\"\n",
+        ")"
+      ],
+      "id": "95b2b3cb",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Look at results\n"
+      ],
+      "id": "e349d7c2"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "def plot_sim(true_abundance, fake_measurements, species_to_ax):\n",
+        "    f, axes = plt.subplots(1, 2, figsize=[9, 3])\n",
+        "\n",
+        "    axes[species_to_ax[1]].set_title(\"Species 1\")\n",
+        "    axes[species_to_ax[2]].set_title(\"Species 2\")\n",
+        "    for ax in axes:\n",
+        "        ax.set_xlabel(\"Time\")\n",
+        "        ax.set_ylabel(\"Abundance\")\n",
+        "        for (tube_i, species_i), df_i in true_abundance.groupby([\"tube\", \"species\"]):\n",
+        "            ax = axes[species_to_ax[species_i]]\n",
+        "            fm = df_i.merge(\n",
+        "                fake_measurements.drop(\"time\", axis=1),\n",
+        "                on=[\"tube\", \"species\", \"timepoint\"]\n",
+        "            )\n",
+        "            ax.plot(\n",
+        "                df_i.set_index(\"time\")[\"abundance\"], color=\"black\", linewidth=0.5\n",
+        "            )\n",
+        "            ax.scatter(\n",
+        "                fm[\"time\"],\n",
+        "                fm[\"simulated_measurement\"],\n",
+        "                color=\"r\",\n",
+        "                marker=\"x\",\n",
+        "                label=\"simulated measurement\"\n",
+        "            )\n",
+        "    return f, axes\n",
+        "\n",
+        "species_to_ax = {1: 0, 2: 1}\n",
+        "true_abundance = (\n",
+        "    idata_true.posterior[\"abundance\"]\n",
+        "    .to_dataframe()\n",
+        "    .droplevel([\"chain\", \"draw\"])\n",
+        "    .join(timepoints, on=\"timepoint\")\n",
+        "    .reset_index()\n",
+        ")\n",
+        "fake_measurements = measurements.join(\n",
+        "    idata_true.posterior_predictive[\"yrep\"]\n",
+        "    .to_series()\n",
+        "    .droplevel([\"chain\", \"draw\"])\n",
+        "    .rename(\"simulated_measurement\")\n",
+        ").copy()\n",
+        "f, axes = plot_sim(true_abundance, fake_measurements, species_to_ax)\n",
+        "\n",
+        "f.savefig(\"img/monod_simulated_data.png\")"
+      ],
+      "id": "a3a3859c",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Sample in prior mode\n"
+      ],
+      "id": "cea60418"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "stan_input_prior = stan_input_common | {\n",
+        "    \"y\": fake_measurements[\"simulated_measurement\"],\n",
+        "    \"likelihood\": 0\n",
+        "}\n",
+        "mcmc_prior = model.sample(\n",
+        "    data=stan_input_prior,\n",
+        "    iter_warmup=100,\n",
+        "    iter_sampling=100,\n",
+        "    chains=1,\n",
+        "    refresh=1,\n",
+        "    save_warmup=True,\n",
+        "    inits=true_param_values,\n",
+        "    seed=SEED,\n",
+        ")\n",
+        "idata_prior = az.from_cmdstanpy(\n",
+        "    mcmc_prior,\n",
+        "    dims=dims,\n",
+        "    coords=coords,\n",
+        "    posterior_predictive={\"y\": \"yrep\"},\n",
+        "    log_likelihood=\"llik\"\n",
+        ")\n",
+        "idata_prior"
+      ],
+      "id": "f57a479b",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "We can find the prior intervals for the true abundance and plot them in the graph.\n"
+      ],
+      "id": "6b3244fb"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "prior_abundances = idata_prior.posterior[\"abundance\"]\n",
+        "\n",
+        "n_sample = 20\n",
+        "chains = rng.choice(prior_abundances.coords[\"chain\"].values, n_sample)\n",
+        "draws = rng.choice(prior_abundances.coords[\"draw\"].values, n_sample)\n",
+        "f, axes = plot_sim(true_abundance, fake_measurements, species_to_ax)\n",
+        "\n",
+        "for ax, species_i in zip(axes, species):\n",
+        "    for tube_j in tubes:\n",
+        "        for chain, draw in zip(chains, draws):\n",
+        "            timeseries = prior_abundances.sel(chain=chain, draw=draw, tube=tube_j, species=species_i)\n",
+        "            ax.plot(\n",
+        "                timepoints.values, \n",
+        "                timeseries.values,\n",
+        "                alpha=0.5, color=\"skyblue\", zorder=-1\n",
+        "            )\n",
+        "f.savefig(\"img/monod_priors.png\")"
+      ],
+      "id": "9c986647",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Sample in posterior mode\n"
+      ],
+      "id": "f715462f"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "stan_input_posterior = stan_input_common | {\n",
+        "    \"y\": fake_measurements[\"simulated_measurement\"],\n",
+        "    \"likelihood\": 1\n",
+        "}\n",
+        "mcmc_posterior = model.sample(\n",
+        "    data=stan_input_posterior,\n",
+        "    iter_warmup=300,\n",
+        "    iter_sampling=300,\n",
+        "    chains=4,\n",
+        "    refresh=1,\n",
+        "    inits=true_param_values,\n",
+        "    seed=SEED,\n",
+        ")\n",
+        "idata_posterior = az.from_cmdstanpy(\n",
+        "    mcmc_posterior,\n",
+        "    dims=dims,\n",
+        "    coords=coords,\n",
+        "    posterior_predictive={\"y\": \"yrep\"},\n",
+        "    log_likelihood=\"llik\"\n",
+        ")\n",
+        "idata_posterior"
+      ],
+      "id": "135aaaa5",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# Diagnostics: is the posterior ok?\n",
+        "First check the `sample_stats` group to see if there were any divergent\n",
+        "transitions and if the `lp` parameter converged.\n"
+      ],
+      "id": "caed4e62"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "az.summary(idata_posterior.sample_stats)"
+      ],
+      "id": "f793a2ac",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Next check the parameter-by-parameter summary\n"
+      ],
+      "id": "ba6e502e"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "az.summary(idata_posterior)"
+      ],
+      "id": "c3819caa",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "Show posterior intervals\n"
+      ],
+      "id": "a9429e81"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "prior_abundances = idata_posterior.posterior[\"abundance\"]\n",
+        "\n",
+        "n_sample = 20\n",
+        "chains = rng.choice(prior_abundances.coords[\"chain\"].values, n_sample)\n",
+        "draws = rng.choice(prior_abundances.coords[\"draw\"].values, n_sample)\n",
+        "f, axes = plot_sim(true_abundance, fake_measurements, species_to_ax)\n",
+        "\n",
+        "for ax, species_i in zip(axes, species):\n",
+        "    for tube_j in tubes:\n",
+        "        for chain, draw in zip(chains, draws):\n",
+        "            timeseries = prior_abundances.sel(chain=chain, draw=draw, tube=tube_j, species=species_i)\n",
+        "            ax.plot(\n",
+        "                timepoints.values, \n",
+        "                timeseries.values,\n",
+        "                alpha=0.5, color=\"skyblue\", zorder=-1\n",
+        "            )\n",
+        "f.savefig(\"img/monod_posteriors.png\")"
+      ],
+      "id": "2ed35781",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### look at the posterior\n",
+        "\n",
+        "The next few cells use arviz's\n",
+        "[`plot_posterior`](https://arviz-devs.github.io/arviz/api/generated/arviz.plot_posterior.html)\n",
+        "function to plot the marginal posterior distributions for some of the model's\n",
+        "parameters:\n"
+      ],
+      "id": "101cf797"
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "f, axes = plt.subplots(1, 4, figsize=[10, 4])\n",
+        "axes = az.plot_posterior(\n",
+        "    idata_posterior,\n",
+        "    kind=\"hist\",\n",
+        "    bins=20,\n",
+        "    var_names=[\"gamma\"],\n",
+        "    ax=axes,\n",
+        "    point_estimate=None,\n",
+        "    hdi_prob=\"hide\"\n",
+        ")\n",
+        "for ax, true_value in zip(axes, true_param_values[\"gamma\"]):\n",
+        "    ax.axvline(true_value, color=\"red\")"
+      ],
+      "id": "ca808324",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "f, axes = plt.subplots(1, 4, figsize=[10, 4])\n",
+        "axes = az.plot_posterior(\n",
+        "    idata_posterior,\n",
+        "    kind=\"hist\",\n",
+        "    bins=20,\n",
+        "    var_names=[\"mu_max\"],\n",
+        "    ax=axes,\n",
+        "    point_estimate=None,\n",
+        "    hdi_prob=\"hide\"\n",
+        ")\n",
+        "for ax, true_value in zip(axes, true_param_values[\"mu_max\"]):\n",
+        "    ax.axvline(true_value, color=\"red\")"
+      ],
+      "id": "2a34b5ff",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "f, axes = plt.subplots(1, 4, figsize=[10, 4])\n",
+        "axes = az.plot_posterior(\n",
+        "    idata_posterior,\n",
+        "    kind=\"hist\",\n",
+        "    bins=20,\n",
+        "    var_names=[\"ks\"],\n",
+        "    ax=axes,\n",
+        "    point_estimate=None,\n",
+        "    hdi_prob=\"hide\"\n",
+        ")\n",
+        "for ax, true_value in zip(axes, true_param_values[\"ks\"]):\n",
+        "    ax.axvline(true_value, color=\"red\")"
+      ],
+      "id": "e69a49da",
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## References\n"
+      ],
+      "id": "51b36cdf"
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python3",
+      "language": "python",
+      "display_name": "Python 3 (ipykernel)",
+      "path": "/Users/tedgro/repos/dtu-qmcm/bayesian_statistics_for_computational_biology/.venv/share/jupyter/kernels/python3"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 5
+}
