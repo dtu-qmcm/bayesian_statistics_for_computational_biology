@@ -14,6 +14,7 @@ project:
   render:
     - course/index.md
     - course/theory-1-introduction.md
+    - course/theory-1-motivating-example-ode.ipynb
     - course/practical-1-setup.md
     - course/motivating-example.ipynb
     - course/theory-2-regression.md
@@ -24,7 +25,7 @@ project:
     - course/theory-4-diagnostics.qmd
     - course/practical-5-diagnostics.qmd
     - course/theory-5-odes.md
-    - course/practical-6-odes.qmd
+    - course/practical-6-odes.
 
 website:
   title: "Bayesian Statistics for Computational Biology"
@@ -42,6 +43,7 @@ website:
       - section: "Theory"
         contents:
         - course/theory-1-introduction.md
+        - course/theory-1-motivating-example-ode.ipynb
         - course/theory-2-regression.md
         - course/theory-3-mcmc.qmd
         - course/theory-4-diagnostics.qmd
