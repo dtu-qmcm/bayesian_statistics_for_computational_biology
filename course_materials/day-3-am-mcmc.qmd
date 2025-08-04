@@ -17,8 +17,7 @@ Recap from last week:
 
 Most Bayesian statistical problems are unsolvable using analytical techniques
 but this does not mean we cannot solve such problems, we just have to change
-our technique. The most ubiquitous of these methods is called ![Markov chain
-Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo) that 
+our technique. The most ubiquitous of these methods is called ![Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo).
 
 
 ## Markov Chains
