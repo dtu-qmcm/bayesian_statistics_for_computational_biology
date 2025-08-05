@@ -1,4 +1,6 @@
-# Introduction
+# ODE models
+
+## Introduction
 
 Recall that in a regression model we have some measurements, some measurable quantities and some covariates. It's convenient to split the problem of estimating new measurements into a probabilistic part that connects the measurement with the measurable, and a deterministic part that connects the parameters and covariates with the expected value $\hat{y}$ of the measurable (or some other statistic). In generalised linear models the covariates connect with the measurable by a linear relationship and a link function, e.g. $\hat{y} = l(x\beta)$ for some link function $l$.
 
@@ -143,7 +145,7 @@ model:
 To get a true abundance given some parameters we put an ode in the model:
 
 $$
-\hat{X}(t), \hat{S}(t) = \text{solve-monod-equation}(t, X_0, S_0, \mu_max, \gamma, K_S)
+\hat{X}(t), \hat{S}(t) = \text{solve-monod-equation}(t, X_0, S_0, \mu_{max}, \gamma, K_S)
 $$
 
 ## References
