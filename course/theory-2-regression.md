@@ -156,7 +156,7 @@ Models with this structure are called "hierarchical" because they include "hyper
 
 Note that in this model the hyper-parameter $\tau_{\beta}$ controls how likely it is, according for the model, for the bottom-level parameters $\beta$ to differ from $\mu_{\beta}$. The smaller $\tau_{\beta}$ is, the more model penalises these differences. In this way, the model is flexible, able to capture both strong and weak similarity between same-replicate measurements.
 
-In a Bayesian hierarchical model, the prior model can provide further regularisation for both hyper-parameters and bottom-level parameters, allowing the modeller to 
+In a Bayesian hierarchical model, the prior model can provide further regularisation for both hyper-parameters and bottom-level parameters.
 
 ## Formula-based models
 
