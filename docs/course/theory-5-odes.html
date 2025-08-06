@@ -4907,7 +4907,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../course/theory-1-introduction.html">Theory</a></li><li class="breadcrumb-item"><a href="../course/theory-5-odes.html">Introduction</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../course/theory-1-introduction.html">Theory</a></li><li class="breadcrumb-item"><a href="../course/theory-5-odes.html">ODE models</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -4972,7 +4972,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../course/theory-5-odes.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Introduction</span></a>
+ <span class="menu-text">ODE models</span></a>
   </div>
 </li>
       </ul>
@@ -5034,8 +5034,9 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <li><a href="#ode-models" id="toc-ode-models" class="nav-link active" data-scroll-target="#ode-models">ODE models</a>
   <ul class="collapse">
+  <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a></li>
   <li><a href="#differential-equations" id="toc-differential-equations" class="nav-link" data-scroll-target="#differential-equations">Differential Equations</a></li>
   <li><a href="#ordinary-differential-equations" id="toc-ordinary-differential-equations" class="nav-link" data-scroll-target="#ordinary-differential-equations">Ordinary Differential Equations</a></li>
   <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a>
@@ -5049,13 +5050,15 @@ window.Quarto = {
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="theory-5-odes.ipynb" download="theory-5-odes.ipynb"><i class="bi bi-journal-code"></i>Jupyter</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../course/theory-1-introduction.html">Theory</a></li><li class="breadcrumb-item"><a href="../course/theory-5-odes.html">Introduction</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../course/theory-1-introduction.html">Theory</a></li><li class="breadcrumb-item"><a href="../course/theory-5-odes.html">ODE models</a></li></ol></nav></header>
 
 
 
 
-<section id="introduction" class="level1">
-<h1>Introduction</h1>
+<section id="ode-models" class="level1">
+<h1>ODE models</h1>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>Recall that in a regression model we have some measurements, some measurable quantities and some covariates. It’s convenient to split the problem of estimating new measurements into a probabilistic part that connects the measurement with the measurable, and a deterministic part that connects the parameters and covariates with the expected value <span class="math inline">\(\hat{y}\)</span> of the measurable (or some other statistic). In generalised linear models the covariates connect with the measurable by a linear relationship and a link function, e.g. <span class="math inline">\(\hat{y} = l(x\beta)\)</span> for some link function <span class="math inline">\(l\)</span>.</p>
 <p>Today we look at Bayesian regression models where the deterministic part involves an <strong>initial value problem</strong> whose dynamics are by a system of <strong>ordinary differential equations</strong>, aka ODEs.</p>
 <p>This kind of model comes up a lot in biology because we often have detailed scientific knowledge about how a system changes, coupled with measurements of it was at different times.</p>
@@ -5076,6 +5079,7 @@ window.Quarto = {
 <li><span class="citation" data-cites="timonenImportanceSamplingApproach2022">Timonen et al. (<a href="#ref-timonenImportanceSamplingApproach2022" role="doc-biblioref">2022</a>)</span></li>
 <li>Stan user guide sections: <a href="https://mc-stan.org/docs/stan-users-guide/algebraic-equations.html">algebraic equation systems</a>, <a href="https://mc-stan.org/docs/stan-users-guide/odes.html">ODE systems</a>, <a href="https://mc-stan.org/docs/stan-users-guide/dae.html">DAE systems</a>.</li>
 </ul>
+</section>
 <section id="differential-equations" class="level2">
 <h2 class="anchored" data-anchor-id="differential-equations">Differential Equations</h2>
 <p>Are equations that relate functions to their derivatives. Some examples of these functions are quantities such as</p>
@@ -5186,7 +5190,7 @@ y_S &amp;\sim LN(\ln{\hat{S}}, \sigma_{S})
 \end{align*}\]</span></p>
 <p>To get a true abundance given some parameters we put an ode in the model:</p>
 <p><span class="math display">\[
-\hat{X}(t), \hat{S}(t) = \text{solve-monod-equation}(t, X_0, S_0, \mu_max, \gamma, K_S)
+\hat{X}(t), \hat{S}(t) = \text{solve-monod-equation}(t, X_0, S_0, \mu_{max}, \gamma, K_S)
 \]</span></p>
 </section>
 </section>
