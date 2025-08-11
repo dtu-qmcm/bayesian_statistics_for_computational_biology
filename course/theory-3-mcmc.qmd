@@ -6,8 +6,8 @@ Welcome back!
 
 Plan for today:
 
-1. [Markov Chains](#markov-chains)
-2. [Metropolis-Hastings explained](#metropolis-hastings)
+1. Markov Chains
+2. Rosenbluth Metropolis Hastings
 
 Recap from last week:
 
@@ -17,8 +17,7 @@ Recap from last week:
 
 Most Bayesian statistical problems are unsolvable using analytical techniques
 but this does not mean we cannot solve such problems, we just have to change
-our technique. The most ubiquitous of these methods is called ![Markov chain
-Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo).
+our technique. The most ubiquitous of these methods is called ![Markov chain Monte Carlo](https://en.wikipedia.org/wiki/Markov_chain_Monte_Carlo).
 
 
 ## Markov Chains
@@ -82,9 +81,11 @@ Our objective is to estimate $\pi$, which represents the target distribution.
 are met.**
 
 1. The Markov Chain is irreducible
+
 **Any point in the Markov chain can be reached by any other point**
 
 2. The Markov Chain is aperiodic
+
 **Any point can be reached by any other point in a single step**
 
 ## Markov Chain Monte Carlo
@@ -102,7 +103,10 @@ other words
 
 $$ \pi(x)*T(x'|x) = \pi(x')*T(x|x')$$.
 
-If a process is reversible then it is also guaranteed to be irreducible and aperiodic. It is aperiodic because you can always  go back, and irreducible because a region cannot be entered if there is no way of returning.
+If we define a reducible process it is defined to be irreducible 
+and aperiodic by default. It is a periodic because you can always 
+go back, and irreducible because a region cannot be entered if 
+there is no way of returning.
 
 The process of generating a Markov Chain with these properties 
 means that we know we are sampling from a stationary target distribution, 
@@ -121,9 +125,9 @@ Rather than sampling from $\pi(x)$, representing the discrete case,
 we will change the notation to $p(x)$. And the transition kernel, rather
 than a matrix $T(x'|x)$ will be represented by $K(x'|x).$
 
-### Metropolis-Hastings
+### Rosenbluth-Metropolis-Hastings
 
-Metropolis-Hastings enforces the reversibility constraint using 
+Rosenbluth-Metropolis-Hastings enforces the reversibility constraint using 
 the accept-reject function
 
 $$
@@ -150,10 +154,10 @@ $$
 p(x)g(x'|x)A(x,x') = p(x')g(x|x')A(x,x').
 $$
 
-Therefore, if we draw samples using the Metropolis-Hastings
+Therefore, if we draw samples using the Rosenbluth-Metropolis-Hastings
 algorithm, we draw samples from the target distribution $p(x)$.
 
-## Coding the Metropolis Hastings in practice
+## Coding Rosenbluth-Metropolis-Hastings in practice
 ### Part 1: sampling from a normal distribution
 Given a $p(x) = N(2, 0.5)$ how would draw samples using
 the Metropolis-Hastings algorithm?
@@ -213,7 +217,7 @@ plt.plot(draw, samples)
 ### Part 2: determining mean and standard deviation from data
 I suggest using logs due to numerical issues.
 Here's an example function which you can use to evaluate 
-the probability of the [data](https://github.com/biosustain/bayesian_statistics_for_computational_biology/blob/main/data/metropolis_hastings_example.csv).
+the probability of the [data](https://github.com/dtu-qmcm/bayesian_statistics_for_computational_biology/main/data/metropolis_hastings_example.csv).
 
 ```{python}
 def eval_prob(data, mu, sigma):
