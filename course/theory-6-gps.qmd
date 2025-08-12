@@ -89,10 +89,46 @@ plt.xticks([1, 2, 3], ['1', '2', '3'])  # Set x-axis ticks to only 1 and 2
 plt.xlabel('index')
 plt.ylabel('value')
 plt.tight_layout()
-plt.legend(loc='upper right', bbox_to_anchor=(1.8, 1))
 plt.grid(True)
 plt.show()
 ```
+When investigating this plot we can see that the first index is not
+very well correlated with the last index, and therefore, knowing about
+the first index does not tell us much about the last index. How about changing
+these values to something that would be more correlated.
+
+```{python}
+#| code-fold: true
+
+mean = np.array([0,0,0])
+covariance = np.array([[1, 0.95, 0.9], [0.95, 1, 0.95], [0.9, 0.95, 1]])
+num_samples = 10
+data = np.random.multivariate_normal(mean, covariance, num_samples)
+
+index_1 = 1
+index_2 = 2
+index_3 = 3
+values_1 = data[:, index_1-1]
+values_2 = data[:, index_2-1]
+values_3 = data[:, index_3-1]
+
+plt.figure(figsize=(4, 6))
+
+for i in range(num_samples):
+    plt.plot([1, 2, 3], [values_1[i], values_2[i], values_3[i]])
+
+plt.xticks([1, 2, 3], ['1', '2', '3'])  # Set x-axis ticks to only 1 and 2
+plt.xlabel('index')
+plt.ylabel('value')
+plt.tight_layout()
+plt.grid(True)
+plt.show()
+```
+
+We can see with these points that for each draw from this GP we are indicating
+with the covariance matrix that these points are laying close together. And that
+is effectively what Gassian processes do, our goal is to find the best way to
+represent how correlated points are with eachother. A
 
 
 ## Function space view
