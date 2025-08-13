@@ -127,8 +127,12 @@ plt.show()
 
 We can see with these points that for each draw from this GP we are indicating
 with the covariance matrix that these points are laying close together. And that
-is effectively what Gassian processes do, our goal is to find the best way to
-represent how correlated points are with eachother. A
+is effectively what Gaussian processes do, our goal is to find the best way to
+represent how correlated points are with each other.
+
+Rather than having correlations between an index we can devise a function
+called a kernel function that represents the correlation between any two inputs $x_i$.
+This function is called a kernel and is represented by $k(x, x')$
 
 
 ## Function space view
