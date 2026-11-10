@@ -10,7 +10,7 @@ Swords: Information
 Cups: Variation
 Wands: Computation
 
-Numbers mean amounts.
+Numbers mean amounts: for example, we might interpret the five of pentacles as representing five measurements. What would you do with five measurements?
 
 Face cards mean: 
 - Page = zero
@@ -31,7 +31,7 @@ The Chariot: Symplectic integrator
 Strength: Hamiltonian
 The Hermit: Markov chain Monte Carlo
 Wheel of Fortune: Probability space
-Justice: Probability
+Justice: Likelihood
 The Hanged Man: Simplex
 Death: Ordinary differential equation
 Temperance: Compositional data
