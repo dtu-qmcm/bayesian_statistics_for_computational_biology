@@ -13,18 +13,26 @@ project:
   output-dir: "docs"
   render:
     - course/index.md
-    - course/theory-1-introduction.md
-    - course/practical-1-setup.md
+    - course/assessment.md
+    - course/probability.md
+    - course/statistics.md
+    - course/exercises/probability-as-noise.md
+    - course/exercises/calibrate-the-od-meter.md
+    - course/exercises/tarot.md
+    - course/exercises/intro_tarot.md
     - course/motivating-example.ipynb
-    - course/theory-2-regression.md
-    - course/practical-2-bambi.qmd
-    - course/theory-3-mcmc.qmd
-    - course/practical-3-stack.qmd
-    - course/practical-4-jax.qmd
-    - course/theory-4-diagnostics.qmd
-    - course/practical-5-diagnostics.qmd
-    - course/theory-5-odes.md
-    - course/practical-6-odes.qmd
+    - course/old/2025/index.md
+    - course/old/2025/theory-1-introduction.md
+    - course/old/2025/practical-1-setup.md
+    - course/old/2025/theory-2-regression.md
+    - course/old/2025/practical-2-bambi.qmd
+    - course/old/2025/theory-3-mcmc.qmd
+    - course/old/2025/practical-3-stack.qmd
+    - course/old/2025/practical-4-jax.qmd
+    - course/old/2025/theory-4-diagnostics.qmd
+    - course/old/2025/practical-5-diagnostics.qmd
+    - course/old/2025/theory-5-odes.md
+    - course/old/2025/practical-6-odes.qmd
 
 website:
   title: "Bayesian Statistics for Computational Biology"
@@ -34,26 +42,41 @@ website:
         url:  https://github.com/dtu-qmcm/bayesian_statistics_for_computational_biology
   sidebar:
     style: "docked"
-    serach: true
+    search: true
     contents:
       - section: "Admin"
         contents:
         - course/index.md
+        - course/assessment.md
       - section: "Theory"
         contents:
-        - course/theory-1-introduction.md
-        - course/theory-2-regression.md
-        - course/theory-3-mcmc.qmd
-        - course/theory-4-diagnostics.qmd
-        - course/theory-5-odes.md
-      - section: "Practical"
+        - course/probability.md
+        - course/statistics.md
+      - section: "Exercises"
         contents:
-        - course/practical-1-setup.md
-        - course/practical-2-bambi.qmd
-        - course/practical-3-stack.qmd
-        - course/practical-4-jax.qmd
-        - course/practical-5-diagnostics.qmd
-        - course/practical-6-odes.qmd
+        - course/exercises/probability-as-noise.md
+        - course/exercises/calibrate-the-od-meter.md
+        - course/exercises/tarot.md
+        - course/exercises/intro_tarot.md
+      - section: "2025 course"
+        contents:
+        - text: "Introduction (2025)"
+          href: course/old/2025/index.md
+        - section: "Theory"
+          contents:
+          - course/old/2025/theory-1-introduction.md
+          - course/old/2025/theory-2-regression.md
+          - course/old/2025/theory-3-mcmc.qmd
+          - course/old/2025/theory-4-diagnostics.qmd
+          - course/old/2025/theory-5-odes.md
+        - section: "Practical"
+          contents:
+          - course/old/2025/practical-1-setup.md
+          - course/old/2025/practical-2-bambi.qmd
+          - course/old/2025/practical-3-stack.qmd
+          - course/old/2025/practical-4-jax.qmd
+          - course/old/2025/practical-5-diagnostics.qmd
+          - course/old/2025/practical-6-odes.qmd
 
 format:
   html:
