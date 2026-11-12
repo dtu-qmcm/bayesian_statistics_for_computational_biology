@@ -5,7 +5,9 @@ linearly on a sample's concentration, with normally distributed measurement
 error.
 """
 
+import jax.numpy as jnp
 from jax import Array
+from jax.scipy.stats import norm
 from jax.typing import ArrayLike
 
 
@@ -25,7 +27,7 @@ def predict_od(
         The predicted optical density of each sample, with the same shape as
         concentration.
     """
-    raise NotImplementedError
+    return intercept + slope * jnp.asarray(concentration)
 
 
 def get_log_likelihood(
@@ -50,7 +52,8 @@ def get_log_likelihood(
     Returns:
         The sum of the log densities of all the measurements.
     """
-    raise NotImplementedError
+    expected_od = predict_od(concentration, intercept, slope)
+    return norm.logpdf(od, expected_od, sigma).sum()
 
 
 def get_log_prior(
@@ -75,7 +78,13 @@ def get_log_prior(
         The sum of the three parameters' log prior densities, or negative
         infinity if sigma is not positive.
     """
-    raise NotImplementedError
+    log_density = (
+        norm.logpdf(intercept, 0.0, 0.1)
+        + norm.logpdf(slope, 1.0, 1.0)
+        + jnp.log(2.0)
+        + norm.logpdf(sigma, 0.0, 0.1)
+    )
+    return jnp.where(sigma > 0, log_density, -jnp.inf)
 
 
 def get_log_posterior(
@@ -97,4 +106,6 @@ def get_log_posterior(
     Returns:
         The sum of the log prior density and the log likelihood.
     """
-    raise NotImplementedError
+    return get_log_prior(intercept, slope, sigma) + get_log_likelihood(
+        od, concentration, intercept, slope, sigma
+    )
